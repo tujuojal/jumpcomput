@@ -1,0 +1,4 @@
+function T=alastulo(vauhti,kulma)
+%antaa ulos alastulon pudotuksen hyppyrin tasalta kun
+%tiedetaan nopeus nokalla ja hyppyrin kulma
+1/2/a*log(tanh(t*(g*a)^(1/2)-atanh(a*vya/(g*a)^(1/2)))-1)+1/2/a*log(tanh(t*(g*a)^(1/2)-atanh(a*vya/(g*a)^(1/2)))+1)

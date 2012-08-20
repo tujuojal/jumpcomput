@@ -1,0 +1,9 @@
+function [D,g,m,myy,alastulo,nokka,alfa,valku]=param
+alfa=pi*2/360*27;       %rinteen kulma
+D=0.25;
+g=9.81;
+m=80;
+myy=0.055;
+alastulo=10;
+nokka=5;
+valku=0;    %alkunopeus rinteeseen tultaessa
