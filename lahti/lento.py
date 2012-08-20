@@ -32,8 +32,8 @@ def lento(kalku,valku,sxalku,syalku):
 	#forward stepping solution with finite differences for speed  
 	for i in range(len(t)-1):
 		t[i+1,0]=t[i,0]+dt
-		ax[i+1,0]=-vx[i,0]**2*A
-		ay[i+1,0]=-g-sign(vy[i,0])*vy[i,0]**2*A
+		ax[i+1,0]=-sqrt(vx[i,0]**2+vy[i,0]**2)*vx[i,0]*A
+		ay[i+1,0]=-g-sign(vy[i,0])*sqrt(vy[i,0]**2+vx[i,0]**2)*vy[i,0]*A
 		vx[i+1,0]=dt*ax[i+1,0]+vx[i,0]
 		vy[i+1,0]=dt*ay[i+1,0]+vy[i,0]
 		sx[i+1,0]=dt*vx[i+1,0]+sx[i,0]
