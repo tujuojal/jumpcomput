@@ -9,7 +9,7 @@ def inrun(kalku,valku,sxalku,syalku):
 	#lasketaan lentorata
 	#time steps size, 100seconds / how many steps
 	steps=100
-	dt=2.5/steps
+	dt=5.0/steps
 	#constants
 	D=0.25	#airresistance crossectional constant
 	g=9.81	#gravity
@@ -28,20 +28,21 @@ def inrun(kalku,valku,sxalku,syalku):
 	ay=zeros((steps,1))
 	sx=zeros((steps,1))
 	sy=zeros((steps,1))
-	vx[0,0]=cos(kalku+0*pi*2/360)*valku
-	vy[0,0]=sin(kalku+0*pi*2/360)*valku
+	vx[0,0]=cos(kalku+0*pi*2.0/360)*valku
+	vy[0,0]=sin(kalku+0*pi*2.0/360)*valku
 	
 	#forward stepping solution with finite differences for speed  
 	for i in range(len(t)-1):
 		t[i+1,0]=t[i,0]+dt
-		ax[i+1,0]=-sqrt(vx[i,0]**2+vy[i,0]**2)*vx[i,0]*A + g*cos(31*2*pi/31)*C*cos(31*2*pi/31)
-		ay[i+1,0]=-g-sign(vy[i,0])*sqrt(vy[i,0]**2+vx[i,0]**2)*vy[i,0]*A + g*cos(31*2*pi/31)*C*cos(31*2*pi/31)
+		ax[i+1,0]=-sqrt(vx[i,0]**2+vy[i,0]**2)*vx[i,0]*A + g*cos(1.0*2.0*pi/360.0)*C*cos(1.0*2.0*pi/360.0)
+		ay[i+1,0]=-g-sqrt(vy[i,0]**2+vx[i,0]**2)*vy[i,0]*A - g*cos(1.0*2.0*pi/360.0)*C*sin(1.0*2.0*pi/360.0)
 		vx[i+1,0]=dt*ax[i+1,0]+vx[i,0]
 		vy[i+1,0]=dt*ay[i+1,0]+vy[i,0]
 		sx[i+1,0]=dt*vx[i+1,0]+sx[i,0]
 		sy[i+1,0]=dt*vy[i+1,0]+sy[i,0]
 		
 	
-	#pylab.plot(sx+sxalku,sy+syalku)
-	#pylab.show()
+	pylab.plot(sx+sxalku,sy+syalku)
+	pylab.show()
 	return [t,sx,sy,vx,vy,ax,ay]
+inrun(0,0,0,0)
