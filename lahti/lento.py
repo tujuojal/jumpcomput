@@ -45,6 +45,10 @@ def lento(kalku,valku,sxalku,syalku):
 	pylab.show()
 	return [t,sx,sy,vx,vy,ax,ay]
 
+# include this trick
+
+#if __name__ == '__main__': 
+#rest after
 [t,sx,sy,vx,vy,ax,ay]=inrun.inrun(45,10,0,0)
 [t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento(45,3,0,0)
 print vx

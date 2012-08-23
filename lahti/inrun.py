@@ -48,6 +48,10 @@ def inrun(kalku,valku,sxalku,syalku):
 	pylab.plot(ax,ay)
 	#pylab.show()
 	return [t,sx,sy,vx,vy,ax,ay]
+# include this trick
+
+#if __name__ == '__main__': 
+#rest after
 [t,sx,sy,vx,vy,ax,ay]=inrun(-31,0,0,0)
 print sqrt(vx**2+vy**2)
 print sqrt(sx**2+sy**2)
