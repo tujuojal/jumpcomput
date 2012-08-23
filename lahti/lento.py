@@ -2,6 +2,7 @@
 
 from scipy import *
 import pylab
+import inrun
 
 	
 def lento(kalku,valku,sxalku,syalku):
@@ -26,8 +27,8 @@ def lento(kalku,valku,sxalku,syalku):
 	ay=zeros((steps,1))
 	sx=zeros((steps,1))
 	sy=zeros((steps,1))
-	vx[0,0]=cos(kalku+0*pi*2/360)*valku
-	vy[0,0]=sin(kalku+0*pi*2/360)*valku
+	vx[0,0]=cos(kalku*pi*2/360)*valku
+	vy[0,0]=sin(kalku*pi*2/360)*valku
 	
 	#forward stepping solution with finite differences for speed  
 	for i in range(len(t)-1):
@@ -40,6 +41,10 @@ def lento(kalku,valku,sxalku,syalku):
 		sy[i+1,0]=dt*vy[i+1,0]+sy[i,0]
 		
 	
-	#pylab.plot(sx+sxalku,sy+syalku)
-	#pylab.show()
+	pylab.plot(sx+sxalku,sy+syalku)
+	pylab.show()
 	return [t,sx,sy,vx,vy,ax,ay]
+
+[t,sx,sy,vx,vy,ax,ay]=inrun.inrun(45,10,0,0)
+[t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento(45,3,0,0)
+print vx
