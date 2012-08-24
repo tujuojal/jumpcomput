@@ -11,10 +11,10 @@ def inrun(kalku,valku,sxalku,syalku):
 	steps=100
 	dt=5.0/steps
 	#constants
-	D=1.3	#airresistance crossectional constant
+	D=0#1.	#airresistance crossectional constant
 	g=9.81	#gravity
 	m=80	#average mass of rider
-	C=0.55	#friction coefficient
+	C=0#0.55	#friction coefficient
 	A=D/m#	#airresistant coefficient
 	rinnekulma=kalku*2.0*pi/360.0 #angle of the slope, constant 31, maybe a function of dx at some point
 	#initialize with
@@ -43,7 +43,7 @@ def inrun(kalku,valku,sxalku,syalku):
 		vy[i+1,0]=dt*ay[i+1,0]+vy[i,0]
 		sx[i+1,0]=dt*vx[i+1,0]+sx[i,0]
 		sy[i+1,0]=dt*vy[i+1,0]+sy[i,0]
-		if sy[i+1,0]<syalku-25:
+		if sy[i+1,0]<syalku-21:
 			break	
 	
 	return [t,sx,sy,vx,vy,ax,ay]
@@ -52,6 +52,7 @@ def inrun(kalku,valku,sxalku,syalku):
 if __name__ == '__main__': 
 #rest after
 	[t,sx,sy,vx,vy,ax,ay]=inrun(31,0,0,0)
+	pylab.plot(t,sqrt(vx**2+vy**2))
 	pylab.plot(sx,sy)
 	pylab.show()
 	print sqrt(vx**2+vy**2)

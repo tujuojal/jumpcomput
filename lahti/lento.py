@@ -9,7 +9,7 @@ def lento(kalku,valku,sxalku,syalku):
 	#lasketaan lentorata
 	#time steps size, 100seconds / how many steps
 	steps=100
-	dt=15.5/steps
+	dt=2.5/steps
 	#constants
 	D=1.3	# airresistance crossectional constant F_d=1/2*ro*v^2*c_d*A
 	#where ro=density 1.225, A=crossectional area 1.5 m^2, c_d = drag coeff 1.5 
@@ -48,8 +48,9 @@ def lento(kalku,valku,sxalku,syalku):
 if __name__ == '__main__': 
 #rest after
 	#[t,sx,sy,vx,vy,ax,ay]=inrun.inrun(45,10,0,0)
-	[t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento(0,0,0,0)
+	[t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento(36.87,17,0,0)
 	
 	pylab.plot(sx1,sy1)
+	pylab.plot([19,19+cos(35./360.*2.*pi)*31],[-4,-4-sin(35./360.*2.*pi)*31])
 	pylab.show()
 	print vy1
