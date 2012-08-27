@@ -5,13 +5,13 @@ import pylab
 import inrun
 
 	
-def lento(kalku,valku,sxalku,syalku):
+def lento(sxalku,syalku,vxalku,vyalku):
 	#lasketaan lentorata
 	#time steps size, 100seconds / how many steps
 	steps=100
 	dt=2.5/steps
 	#constants
-	D=1.3	# airresistance crossectional constant F_d=1/2*ro*v^2*c_d*A
+	D=0#1.	#maybe 1.3?	# airresistance crossectional constant F_d=1/2*ro*v^2*c_d*A
 	#where ro=density 1.225, A=crossectional area 1.5 m^2, c_d = drag coeff 1.5 
 	g=9.81	#gravity
 	m=80	#average mass of rider
@@ -28,8 +28,10 @@ def lento(kalku,valku,sxalku,syalku):
 	ay=zeros((steps,1))
 	sx=zeros((steps,1))
 	sy=zeros((steps,1))
-	vx[0,0]=cos(kalku*pi*2/360)*valku
-	vy[0,0]=sin(kalku*pi*2/360)*valku
+	vx[0,0]=vxalku
+	vy[0,0]=vyalku
+	sx[0,0]=sxalku
+	sy[0,0]=syalku
 	
 	#forward stepping solution with finite differences for speed  
 	for i in range(len(t)-1):
