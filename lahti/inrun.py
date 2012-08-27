@@ -5,10 +5,10 @@ from scipy import *
 import pylab
 import lento
 #constants
-D=0#1.	#airresistance crossectional constant
+D=1.	#airresistance crossectional constant
 g=9.81	#gravity
 m=80	#average mass of rider
-C=0#.055	#friction coefficient
+C=.055	#friction coefficient
 A=D/m#	#airresistant coefficient
 radius=20.	#this is global constant, radius of the transitions
 runangle=31.*2.*pi/360.		#angle of the inrun, straight section
