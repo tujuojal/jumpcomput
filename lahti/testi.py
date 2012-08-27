@@ -29,6 +29,18 @@ for x in x_list:
     # 'r--' red dashed line, 'g^' green triangles, 'bs' blue squares
     # 'rp' red pentagons, 'r1', 'r2', 'r3', 'r4' well, check out the markers
     #
+	t=zeros((steps,1))
+	sx=zeros((steps,1))
+	sy=zeros((steps,1))
+	vx=zeros((steps,1))
+	vy=zeros((steps,1))
+	ax=zeros((steps,1))
+	ay=zeros((steps,1))
+	for i in range(len(t)-1):
+		ax[i+1,0]=sin(rinnekulma(sx[i,0]))*(vx[i,0]**2+vy[i,0]**2)/5.
+		ay[i+1,0]=cos(rinnekulma(sx[i,0]))*(vx[i,0]**2+vy[i,0]**2)/5.
+
+
 pylab.plot(x_list, y_list, 'b')
     # save the plot as a PNG image file (optional)
 pylab.savefig('Fig1.png')
