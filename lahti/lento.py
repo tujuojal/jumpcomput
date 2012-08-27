@@ -11,7 +11,7 @@ def lento(sxalku,syalku,vxalku,vyalku):
 	steps=100
 	dt=2.5/steps
 	#constants
-	D=0#1.	#maybe 1.3?	# airresistance crossectional constant F_d=1/2*ro*v^2*c_d*A
+	D=0.4#1.	#maybe 1.3?	# airresistance crossectional constant F_d=1/2*ro*v^2*c_d*A
 	#where ro=density 1.225, A=crossectional area 1.5 m^2, c_d = drag coeff 1.5 
 	g=9.81	#gravity
 	m=80	#average mass of rider

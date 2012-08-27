@@ -5,7 +5,7 @@ from scipy import *
 import pylab
 import lento
 #constants
-D=1.	#airresistance crossectional constant
+D=.4	#airresistance crossectional constant
 g=9.81	#gravity
 m=80	#average mass of rider
 C=.055	#friction coefficient
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 	pylab.plot([sxloppu,sxloppu+19,sxloppu+19+tan(35*2*pi/360)*16],[syloppu-4,syloppu-4,syloppu-4-16])
 	[t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento.lento(sxloppu,syloppu,vxloppu,vyloppu)
 	pylab.plot(sx1,sy1)
-	pylab.savefig('Lahti3.png')
+	pylab.savefig('Lahti_real.png')
 	pylab.show()
 	#print ax
 	#for i in range(len(t)-1):
