@@ -18,10 +18,14 @@ class PaskaLaatikko:
         obj.addProperty("App::PropertyLength","AlasKulma","Laatikko","Alastulon kulma").AlasKulma=30.0
         obj.addProperty("App::PropertyLength","AlasKorkeus","Laatikko","Alastulon korkeus").AlasKorkeus=20.0
         obj.addProperty("App::PropertyLength","Nopeus","Laatikko","Nopeus nokalla km/h").Nopeus=40.0
+        obj.addProperty("App::PropertyLength","InrunHeight","Laatikko","Inrun korkeus").Height=25.0
+        obj.addProperty("App::PropertyLength","RunAngle","Laatikko","Vauhdinoton kulma").RunAngle=31.0
+        obj.addProperty("App::PropertyLength","Radius","Laatikko","Transition säde").Radius=31.0
+        obj.addProperty("App::PropertyLength","Flat","Laatikko","Flatin pituus").Radius=5.0
         obj.Proxy = self
 
     def onChanged(self, fp, prop):
-        if prop == "Nopeus" or prop == "Korkeus" or prop == "Kulma" or prop == "Leveys" or prop == "Pituus" or prop == "Segments" or prop=="AlasKorkeus" or prop == "AlasKulma": #if one of these is changed
+        if prop == "Nopeus" or prop == "Korkeus" or prop == "Kulma" or prop == "Leveys" or prop == "Pituus" or prop == "Segments" or prop=="AlasKorkeus" or prop == "AlasKulma" or prop == "InrunHeight" or prop == "RunAngle" or prop == "Radius" or prop== "Flat" : #if one of these is changed
             self.execute(fp)
 
     def execute(self, fp): #main part of script
@@ -35,7 +39,10 @@ class PaskaLaatikko:
         alaskul = fp.AlasKulma
         alaskor = fp.AlasKorkeus          
        
-        edge1 = Part.makeLine((0,0,0), (pit,0,0)) #lines needed to create rectangle
+	inrun = inrun(31,0,0,0,ylengthstr,runangle,radius,flat)				#inrun path
+	[kode,sxloppu,syloppu,vxloppu,vyloppu] = takeoff(ylengthstr,runangle,radius,flat) #checkin the takeoff point
+
+        edge1 = Part.makeLine((sxloppu,0,0), (sxloppu+pit,0,0)) #lines needed to create rectangle
         edge2 = Part.makeLine((0,0,0),(0,0,kor))
         edge3 = Part.makeLine((pit,0,0), (pit,0,alaskor))
         edge4 = Part.makeLine((0,0,kor), (pit,0,alaskor))
@@ -44,11 +51,26 @@ class PaskaLaatikko:
         takeofpysty = Part.makeLine((0,0,0),(0,0,kor))
         land = Part.makeLine((pit,0,alaskor),(pit+alaskor/tan(alaskul*pi*2/360),0,0))
         landpohja = Part.makeLine((pit,0,0),(pit+alaskor/tan(alaskul*pi*2/360),0,0))
-	inrun = inrun(31,0,0,0)
-        lentorata = lento(kul*pi*2/360,nop/3.6,0,0) #calculating the flightpath by script lento.py
+#
+#
+        lentorata = lento(sxloppu,syloppu,vxloppu,vyloppu) #calculating the flightpath by script lento.py
         landwire=Part.Wire([edge3,land,landpohja])
         faceland=Part.Face(landwire)
         extland=faceland.extrude(Base.Vector(0,lev,0)) #extrude landing
+
+
+        #make for loop to catch the steps of the inrun
+        for i in range(len(inrun[1][kode])-1):
+        	if i==0:
+        		segInrun=Part.makeLine((inrun[1][i,0],0,kor+inrun[2][i,0]),(inrun[1][i+1,0],0,kor+inrun[2][i+1,0]))
+        		wireInrun=Part.Wire([segInrun])
+        		
+        	else:
+        		segInrun=Part.makeLine((inrun[1][i,0],0,kor+inrun[2][i,0]),(inrun[1][i+1,0],0,kor+inrun[2][i+1,0]))
+        		wireInrun=Part.Wire([wireInrun,segInrun])
+        		veInrun=wireInrun.Vertexes[1]
+
+        extInrun = wireInrun.extrude(Base.Vector(0,lev/2,0)) #extrude inrun
         #make for loop to catch the steps of the flightpath
         for i in range(len(lentorata[1])-1):
         	if i==0:
@@ -76,7 +98,7 @@ class PaskaLaatikko:
         exttake = facetakeof.extrude(Base.Vector(0,lev,0)) #extrude takeof
         extflight = wire2.extrude(Base.Vector(0,lev/2,0)) #extrude flightpath
 
-        final=Part.Compound([extflight,ext,exttake,extland])
+        final=Part.Compound([extInrun,extflight,ext,exttake,extland])
         fp.Shape = final #ext #result shape
 
 def makePaskaLaatikko():
