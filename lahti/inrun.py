@@ -12,6 +12,7 @@ C=.055	#friction coefficient
 A=D/m#	#airresistant coefficient
 radius=20.	#this is global constant, radius of the transitions
 runangle=31.*2.*pi/360.		#angle of the inrun, straight section
+flat=5		#length of flat section before takeof
 ylengthstr=25.-(radius-cos(runangle)*radius)	#-yheight when transition starts, 0 is strarting level, 20 radius
 def tran1(xx,kalku):
 	#radius=radius			#radius of a transition from inrun to flat
@@ -26,12 +27,14 @@ def rinnekulma(x):
 		angle=runangle
 	elif x<=(ylengthstr/tan(runangle)+radius*sin(runangle)):
 		angle=arcsin(((ylengthstr/tan(runangle)+radius*sin(runangle))-x)/radius)
+	elif x<=(ylengthstr/tan(runangle)+radius*sin(runangle))+flat:
+		angle=0
 	else:
-		angle=max(-36.*2.*pi/360.,-arcsin((x-(ylengthstr/(tan(runangle))+radius*sin(runangle)))/radius))
+		angle=max(-36.*2.*pi/360.,-arcsin((x-(ylengthstr/(tan(runangle))+radius*sin(runangle))-flat)/radius))
 
 	return angle
 def invradius(x):
-	if rinnekulma(x)>=runangle or -35.*2.*pi/360.>rinnekulma(x):
+	if rinnekulma(x)>=runangle or -35.*2.*pi/360.>rinnekulma(x) or rinnekulma == 1:
 		return 0
 	else:
 		return 1./radius
