@@ -5,6 +5,8 @@ from scipy import *
 import pylab
 import lento
 #constants
+#all angles given in radians!!!!
+
 D=.4	#airresistance crossectional constant
 g=9.81	#gravity
 m=80	#average mass of rider
@@ -13,7 +15,7 @@ A=D/m#	#airresistant coefficient
 def tran1(xx,kalku):
 	#radius=radius			#radius of a transition from inrun to flat
 	yy=sqrt(radius**2-xx**2) 	#y coordinate at position x
-	agl=kalku*2.*pi/360.-arcsin(xx/radius) 	#angle at point x
+	agl=kalku-arcsin(xx/radius) 	#angle at point x
 	return [-yy,agl]
 
 
@@ -39,8 +41,8 @@ def inrun(kalku,valku,sxalku,syalku,ylengthstr,runangle,radius,flat):
 	#radius = radius# same radius as in tran1, 
 	#lasketaan lentorata
 	#time steps size, 100seconds / how many steps
-	steps=500
-	dt=7.0/steps
+	steps=200
+	dt=9.0/steps
 	#rinnekulma=kalku*2.0*pi/360.0 #angle of the slope, constant 45, maybe a function of dx at some point
 	#initialize with
 	#zeros
@@ -54,8 +56,8 @@ def inrun(kalku,valku,sxalku,syalku,ylengthstr,runangle,radius,flat):
 	ay=zeros((steps,1))
 	sx=zeros((steps,1))
 	sy=zeros((steps,1))
-	vx[0,0]=cos(kalku*pi*2.0/360)*valku
-	vy[0,0]=sin(kalku*pi*2.0/360)*valku
+	vx[0,0]=cos(kalku)*valku
+	vy[0,0]=sin(kalku)*valku
 	
 	#forward stepping solution with finite differences for speed  
 	for i in range(len(t)-1):
@@ -72,22 +74,22 @@ def inrun(kalku,valku,sxalku,syalku,ylengthstr,runangle,radius,flat):
 	return [t,sx,sy,vx,vy,ax,ay]
 #this is to locate the takeoff
 def takeoff(ylengthstr,runangle,radius,flat):
-	[t,sx,sy,vx,vy,ax,ay]=inrun(31,0,0,0,ylengthstr,runangle,radius,flat)
+	[t,sx,sy,vx,vy,ax,ay]=inrun(runangle,0,0,0,ylengthstr,runangle,radius,flat)
 	kode=1
-	while rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat)>-35.*2.*pi/360.:
+	while rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat)>-35.*2.*pi/360. and kode<198:
 		kode=kode+1
 	return [kode,sx[kode,0],sy[kode,0],vx[kode,0],vy[kode,0]]
 
 # include this trick
 
 if __name__ == '__main__': 
-#rest after
+##rest after
 
 	radius=20.	#this is global constant, radius of the transitions
 	runangle=31.*2.*pi/360.		#angle of the inrun, straight section
 	flat=5.		#length of flat section before takeof
 	ylengthstr=25.-(radius-cos(runangle)*radius)	#-yheight when transition starts, 0 is strarting level, 20 radius
-	[t,sx,sy,vx,vy,ax,ay]=inrun(31,0,0,0,ylengthstr,runangle,radius,flat)
+	[t,sx,sy,vx,vy,ax,ay]=inrun(runangle,0,0,0,ylengthstr,runangle,radius,flat)
 	[kode,sxloppu,syloppu,vxloppu,vyloppu]=takeoff(ylengthstr,runangle,radius,flat)
 	pylab.plot(sx[:kode],sy[:kode])
 	print (ylengthstr/tan(runangle)+radius*sin(runangle))+flat
@@ -97,9 +99,9 @@ if __name__ == '__main__':
 	pylab.plot([sxloppu,sxloppu+19,sxloppu+19+tan(35*2*pi/360)*16],[syloppu-4,syloppu-4,syloppu-4-16])
 	[t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento.lento(sxloppu,syloppu,vxloppu,vyloppu)
 	pylab.plot(sx1,sy1)
-	pylab.savefig('Lahti_real.png')
+#	pylab.savefig('Lahti_real.png')
 	pylab.show()
-	#print ax
-	#for i in range(len(t)-1):
-	#	print rinnekulma(sx[i,0])
-		#print arctan2(vy[i,0],vx[i,0])*360./2./pi
+#	#print ax
+#	#for i in range(len(t)-1):
+#	#	print rinnekulma(sx[i,0])
+#		#print arctan2(vy[i,0],vx[i,0])*360./2./pi

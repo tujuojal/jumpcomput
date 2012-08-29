@@ -4,10 +4,11 @@ from __future__ import division # allows floating point division from integers
 import FreeCAD, Part, math
 from FreeCAD import Base
 from lento import lento
-from inrun import *
+from inrun import inrun
+from inrun import takeoff
 from scipy import *
 
-class PaskaLaatikko:
+class LahtiTest1:
     def __init__(self, obj):
         ''' Add the properties: Korkeus, Leveys, Pituus, Segments (see Property View) '''
         obj.addProperty("App::PropertyLength","Korkeus","Laatikko","Laatikon korkeus").Korkeus=20.0
@@ -18,10 +19,10 @@ class PaskaLaatikko:
         obj.addProperty("App::PropertyLength","AlasKulma","Laatikko","Alastulon kulma").AlasKulma=30.0
         obj.addProperty("App::PropertyLength","AlasKorkeus","Laatikko","Alastulon korkeus").AlasKorkeus=20.0
         obj.addProperty("App::PropertyLength","Nopeus","Laatikko","Nopeus nokalla km/h").Nopeus=40.0
-        obj.addProperty("App::PropertyLength","InrunHeight","Laatikko","Inrun korkeus").Height=25.0
+        obj.addProperty("App::PropertyLength","InrunHeight","Laatikko","Inrun korkeus").InrunHeight=25.0
         obj.addProperty("App::PropertyLength","RunAngle","Laatikko","Vauhdinoton kulma").RunAngle=31.0
-        obj.addProperty("App::PropertyLength","Radius","Laatikko","Transition säde").Radius=31.0
-        obj.addProperty("App::PropertyLength","Flat","Laatikko","Flatin pituus").Radius=5.0
+        obj.addProperty("App::PropertyLength","Radius","Laatikko","Transition sade").Radius=20.0
+        obj.addProperty("App::PropertyLength","Flat","Laatikko","Flatin pituus").Flat=5.0
         obj.Proxy = self
 
     def onChanged(self, fp, prop):
@@ -38,19 +39,25 @@ class PaskaLaatikko:
         kul=fp.Kulma
         alaskul = fp.AlasKulma
         alaskor = fp.AlasKorkeus          
+	ylengthstr = fp.InrunHeight
+	runangle = fp.RunAngle
+	radius = fp.Radius
+	flat = fp.Flat
        
-	inrun = inrun(31,0,0,0,ylengthstr,runangle,radius,flat)				#inrun path
-	[kode,sxloppu,syloppu,vxloppu,vyloppu] = takeoff(ylengthstr,runangle,radius,flat) #checkin the takeoff point
+	inruninfo = inrun(runangle*2.*pi/360.,0,0,0,ylengthstr,runangle*2.*pi/360.,radius,flat)				#inrun path
+	[kode,sxloppu,syloppu,vxloppu,vyloppu] = takeoff(ylengthstr,runangle*2.*pi/360.,radius,flat) #checkin the takeoff point
+	print kode
+	print vyloppu
 
-        edge1 = Part.makeLine((sxloppu,0,0), (sxloppu+pit,0,0)) #lines needed to create rectangle
-        edge2 = Part.makeLine((0,0,0),(0,0,kor))
-        edge3 = Part.makeLine((pit,0,0), (pit,0,alaskor))
-        edge4 = Part.makeLine((0,0,kor), (pit,0,alaskor))
-        takeof = Part.makeLine((-kor/tan(kul*2*pi/360),0,0),(0,0,kor))
-        takeofpohja = Part.makeLine((-kor/tan(kul*2*pi/360),0,0),(0,0,0))
-        takeofpysty = Part.makeLine((0,0,0),(0,0,kor))
-        land = Part.makeLine((pit,0,alaskor),(pit+alaskor/tan(alaskul*pi*2/360),0,0))
-        landpohja = Part.makeLine((pit,0,0),(pit+alaskor/tan(alaskul*pi*2/360),0,0))
+        edge1 = Part.makeLine((sxloppu,0,syloppu), (sxloppu+pit,0,syloppu+alaskor-kor)) #lines needed to create rectangle
+        edge2 = Part.makeLine((sxloppu,0,syloppu-kor),(sxloppu,0,syloppu))
+        edge3 = Part.makeLine((sxloppu+pit,0,syloppu-kor), (sxloppu+pit,0,syloppu+alaskor-kor))
+        edge4 = Part.makeLine((sxloppu,0,syloppu-kor), (sxloppu+pit,0,syloppu-kor))
+        takeof = Part.makeLine((-kor/tan(kul*2*pi/360)+sxloppu,0,syloppu-kor),(sxloppu,0,syloppu))
+        takeofpohja = Part.makeLine((-kor/tan(kul*2*pi/360)+sxloppu,0,syloppu-kor),(sxloppu,0,syloppu-kor))
+        takeofpysty = Part.makeLine((sxloppu,0,syloppu-kor),(sxloppu,0,syloppu))
+        land = Part.makeLine((sxloppu+pit,0,syloppu+alaskor-kor),(sxloppu+pit+alaskor/tan(alaskul*pi*2/360),0,syloppu-kor))
+        landpohja = Part.makeLine((sxloppu+pit,0,syloppu-kor),(sxloppu+pit+alaskor/tan(alaskul*pi*2/360),0,syloppu-kor))
 #
 #
         lentorata = lento(sxloppu,syloppu,vxloppu,vyloppu) #calculating the flightpath by script lento.py
@@ -59,18 +66,18 @@ class PaskaLaatikko:
         extland=faceland.extrude(Base.Vector(0,lev,0)) #extrude landing
 
 
-        #make for loop to catch the steps of the inrun
-        for i in range(len(inrun[1][kode])-1):
+        #make for loop to catch the steps of the inruninfo
+        for i in range(len(inruninfo[1][:kode])-1):
         	if i==0:
-        		segInrun=Part.makeLine((inrun[1][i,0],0,kor+inrun[2][i,0]),(inrun[1][i+1,0],0,kor+inrun[2][i+1,0]))
+        		segInrun=Part.makeLine((inruninfo[1][i,0],0,kor+inruninfo[2][i,0]),(inruninfo[1][i+1,0],0,kor+inruninfo[2][i+1,0]))
         		wireInrun=Part.Wire([segInrun])
         		
         	else:
-        		segInrun=Part.makeLine((inrun[1][i,0],0,kor+inrun[2][i,0]),(inrun[1][i+1,0],0,kor+inrun[2][i+1,0]))
+        		segInrun=Part.makeLine((inruninfo[1][i,0],0,kor+inruninfo[2][i,0]),(inruninfo[1][i+1,0],0,kor+inruninfo[2][i+1,0]))
         		wireInrun=Part.Wire([wireInrun,segInrun])
         		veInrun=wireInrun.Vertexes[1]
 
-        extInrun = wireInrun.extrude(Base.Vector(0,lev/2,0)) #extrude inrun
+        extInrun = wireInrun.extrude(Base.Vector(0,lev/2,0)) #extrude inruninfo
         #make for loop to catch the steps of the flightpath
         for i in range(len(lentorata[1])-1):
         	if i==0:
@@ -101,14 +108,14 @@ class PaskaLaatikko:
         final=Part.Compound([extInrun,extflight,ext,exttake,extland])
         fp.Shape = final #ext #result shape
 
-def makePaskaLaatikko():
+def makeLahtiTest1():
     doc = FreeCAD.activeDocument()
     if doc == None:
         doc = FreeCAD.newDocument()
-    paskalaatikko=doc.addObject("Part::FeaturePython","Paska_Laatikko") #add object to document
-    paskalaatikko.Label = "Paska Laatikko"
-    PaskaLaatikko(paskalaatikko)
-    paskalaatikko.ViewObject.Proxy=0
+    lahtiTest1=doc.addObject("Part::FeaturePython","Lahti_testing") #add object to document
+    lahtiTest1.Label = "Lahti testing"
+    LahtiTest1(lahtiTest1)
+    lahtiTest1.ViewObject.Proxy=0
 
 if __name__ == "__main__": #feature will be generated after macro execution
-    makePaskaLaatikko()
+    makeLahtiTest1()

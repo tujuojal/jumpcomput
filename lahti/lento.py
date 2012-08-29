@@ -47,12 +47,12 @@ def lento(sxalku,syalku,vxalku,vyalku):
 
 # include this trick
 
-if __name__ == '__main__': 
-#rest after
-	#[t,sx,sy,vx,vy,ax,ay]=inrun.inrun(45,10,0,0)
-	[t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento(36.87,17,0,0)
-	
-	pylab.plot(sx1,sy1)
-	pylab.plot([19,19+cos(35./360.*2.*pi)*31],[-4,-4-sin(35./360.*2.*pi)*31])
-	pylab.show()
-	print vy1
+#if __name__ == '__main__': 
+##rest after
+#	#[t,sx,sy,vx,vy,ax,ay]=inrun.inrun(45,10,0,0)
+#	[t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento(0,0,10,14)
+#	
+#	pylab.plot(sx1,sy1)
+#	pylab.plot([0,19,19+cos(35./360.*2.*pi)*31],[0,-4,-4-sin(35./360.*2.*pi)*31])
+#	pylab.show()
+#	#print vy1

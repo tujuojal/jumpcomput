@@ -42,7 +42,7 @@ class PaskaLaatikko:
         takeofpysty = Part.makeLine((0,0,0),(0,0,kor))
         land = Part.makeLine((pit,0,alaskor),(pit+alaskor/tan(alaskul*pi*2/360),0,0))
         landpohja = Part.makeLine((pit,0,0),(pit+alaskor/tan(alaskul*pi*2/360),0,0))
-        lentorata = lento(kul*pi*2/360,nop/3.6,0,0) #calculating the flightpath by script lento.py
+        lentorata = lento(0,0,cos(kul*pi*2./360.)*nop/3.6,sin(kul*pi*2./360.)*nop/3.6) #calculating the flightpath by script lento.py
         landwire=Part.Wire([edge3,land,landpohja])
         faceland=Part.Face(landwire)
         extland=faceland.extrude(Base.Vector(0,lev,0)) #extrude landing
