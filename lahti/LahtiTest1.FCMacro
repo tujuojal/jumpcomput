@@ -69,11 +69,11 @@ class LahtiTest1:
         #make for loop to catch the steps of the inruninfo
         for i in range(len(inruninfo[1][:kode])-1):
         	if i==0:
-        		segInrun=Part.makeLine((inruninfo[1][i,0],0,kor+inruninfo[2][i,0]),(inruninfo[1][i+1,0],0,kor+inruninfo[2][i+1,0]))
+        		segInrun=Part.makeLine((inruninfo[1][i,0],0,inruninfo[2][i,0]),(inruninfo[1][i+1,0],0,inruninfo[2][i+1,0]))
         		wireInrun=Part.Wire([segInrun])
         		
         	else:
-        		segInrun=Part.makeLine((inruninfo[1][i,0],0,kor+inruninfo[2][i,0]),(inruninfo[1][i+1,0],0,kor+inruninfo[2][i+1,0]))
+        		segInrun=Part.makeLine((inruninfo[1][i,0],0,inruninfo[2][i,0]),(inruninfo[1][i+1,0],0,inruninfo[2][i+1,0]))
         		wireInrun=Part.Wire([wireInrun,segInrun])
         		veInrun=wireInrun.Vertexes[1]
 
@@ -81,11 +81,11 @@ class LahtiTest1:
         #make for loop to catch the steps of the flightpath
         for i in range(len(lentorata[1])-1):
         	if i==0:
-        		seg=Part.makeLine((lentorata[1][i,0],0,kor+lentorata[2][i,0]),(lentorata[1][i+1,0],0,kor+lentorata[2][i+1,0]))
+        		seg=Part.makeLine((lentorata[1][i,0],0,lentorata[2][i,0]),(lentorata[1][i+1,0],0,lentorata[2][i+1,0]))
         		wire2=Part.Wire([seg])
         		
         	else:
-        		seg=Part.makeLine((lentorata[1][i,0],0,kor+lentorata[2][i,0]),(lentorata[1][i+1,0],0,kor+lentorata[2][i+1,0]))
+        		seg=Part.makeLine((lentorata[1][i,0],0,lentorata[2][i,0]),(lentorata[1][i+1,0],0,lentorata[2][i+1,0]))
         		wire2=Part.Wire([wire2,seg])
         		ve=wire2.Vertexes[1]
         #next thing when hit landing
