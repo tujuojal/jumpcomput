@@ -4,8 +4,8 @@ from __future__ import division # allows floating point division from integers
 import FreeCAD, Part, math
 from FreeCAD import Base
 from lento import lento
-from inrun import inrun
-from inrun import takeoff
+from inrun2 import inrun
+from inrun2 import takeoff
 from scipy import *
 
 class LahtiTest1:
@@ -23,10 +23,11 @@ class LahtiTest1:
         obj.addProperty("App::PropertyLength","Radius","Laatikko","Transition sade").Radius=20.0
         obj.addProperty("App::PropertyLength","Flat","Laatikko","Flatin pituus").Flat=5.0
         obj.addProperty("App::PropertyLength","TakeoffAngle","Laatikko","Takeoff angle").TakeoffAngle=36.0
+        obj.addProperty("App::PropertyLength","TakeoffHeight","Laatikko","Takeoff height").TakeoffHeight=4.0
         obj.Proxy = self
 
     def onChanged(self, fp, prop):
-        if prop == "Nopeus" or prop == "Korkeus" or prop == "Leveys" or prop == "Pituus" or prop == "Segments" or prop=="AlasKorkeus" or prop == "AlasKulma" or prop == "InrunHeight" or prop == "RunAngle" or prop == "Radius" or prop== "Flat" or prop == "TakeoffAngle" : #if one of these is changed
+        if prop == "Nopeus" or prop == "Korkeus" or prop == "Leveys" or prop == "Pituus" or prop == "Segments" or prop=="AlasKorkeus" or prop == "AlasKulma" or prop == "InrunHeight" or prop == "RunAngle" or prop == "Radius" or prop== "Flat" or prop == "TakeoffAngle" or prop == "TakeoffHeight" : #if one of these is changed
             self.execute(fp)
 
     def execute(self, fp): #main part of script
@@ -36,16 +37,17 @@ class LahtiTest1:
         kor=fp.Korkeus
         lev=fp.Leveys
         pit=fp.Pituus
-        kul=fp.TakeoffAngle
         alaskul = fp.AlasKulma
         alaskor = fp.AlasKorkeus          
 	ylengthstr = fp.InrunHeight
 	runangle = fp.RunAngle
 	radius = fp.Radius
 	flat = fp.Flat
+        kul=fp.TakeoffAngle
+	takekork=fp.TakeoffHeight
        
-	inruninfo = inrun(runangle*2.*pi/360.,0,0,0,ylengthstr,runangle*2.*pi/360.,radius,flat)				#inrun path
-	[kode,sxloppu,syloppu,vxloppu,vyloppu] = takeoff(ylengthstr,runangle*2.*pi/360.,radius,flat,-kul*2.*pi/360.) #checkin the takeoff point
+	inruninfo = inrun(runangle*2.*pi/360.,0,0,0,ylengthstr,runangle*2.*pi/360.,radius,flat,-kul*2.*pi/360.,takekork)				#inrun path
+	[kode,sxloppu,syloppu,vxloppu,vyloppu] = takeoff(ylengthstr,runangle*2.*pi/360.,radius,flat,-kul*2.*pi/360.,takekork) #checkin the takeoff point
 	print kode
 	print vyloppu
 

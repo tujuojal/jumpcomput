@@ -73,11 +73,12 @@ def inrun(kalku,valku,sxalku,syalku,ylengthstr,runangle,radius,flat):
 	
 	return [t,sx,sy,vx,vy,ax,ay]
 #this is to locate the takeoff
-def takeoff(ylengthstr,runangle,radius,flat):
+def takeoff(ylengthstr,runangle,radius,flat,takeoffangle):
 	[t,sx,sy,vx,vy,ax,ay]=inrun(runangle,0,0,0,ylengthstr,runangle,radius,flat)
 	kode=1
-	while rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat)>-35.*2.*pi/360. and kode<198:
+	while rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat)>takeoffangle and kode<198:
 		kode=kode+1
+		if kode==197: print "Warning warning, timesteps not reaching takeoff!!"
 	return [kode,sx[kode,0],sy[kode,0],vx[kode,0],vy[kode,0]]
 
 # include this trick
@@ -88,9 +89,10 @@ if __name__ == '__main__':
 	radius=20.	#this is global constant, radius of the transitions
 	runangle=31.*2.*pi/360.		#angle of the inrun, straight section
 	flat=5.		#length of flat section before takeof
+	takeoffangle=35.*2.*pi/360.	#angle of takeoff
 	ylengthstr=25.-(radius-cos(runangle)*radius)	#-yheight when transition starts, 0 is strarting level, 20 radius
 	[t,sx,sy,vx,vy,ax,ay]=inrun(runangle,0,0,0,ylengthstr,runangle,radius,flat)
-	[kode,sxloppu,syloppu,vxloppu,vyloppu]=takeoff(ylengthstr,runangle,radius,flat)
+	[kode,sxloppu,syloppu,vxloppu,vyloppu]=takeoff(ylengthstr,runangle,radius,flat,takeoffangle)
 	pylab.plot(sx[:kode],sy[:kode])
 	print (ylengthstr/tan(runangle)+radius*sin(runangle))+flat
 	print [vxloppu,vyloppu]
