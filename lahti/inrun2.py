@@ -43,7 +43,7 @@ def rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
 		return -takeoffAngle
 
 def invradius(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
-	if rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)>=runangle or -takeoffAngle+.04>rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight) or abs(rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)) < 0.01:
+	if rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)>=runangle or -takeoffAngle>=rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight) or abs(rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)) == 0:
 		return 0
 	else:
 		return 1./radius
@@ -66,6 +66,7 @@ def inrun(kalku,valku,sxalku,syalku,ylengthstr,runangle,radius,flat,takeoffAngle
 	sy=zeros((steps,1))
 	vx[0,0]=cos(kalku)*valku
 	vy[0,0]=sin(kalku)*valku
+	check=0		#this is check code if something is done or not
 	
 	#forward stepping solution with finite differences for speed  
 	for i in range(len(t)-1):
@@ -76,8 +77,10 @@ def inrun(kalku,valku,sxalku,syalku,ylengthstr,runangle,radius,flat,takeoffAngle
 		vy[i+1,0]=dt*ay[i+1,0]+vy[i,0]
 		sx[i+1,0]=dt*vx[i+1,0]+sx[i,0]
 		sy[i+1,0]=dt*vy[i+1,0]+sy[i,0]
-		#if rinnekulma(sx[i+1,0])<=-36.*2.*pi/360.:
-		#	break	
+		if rinnekulma(sx[i,0],ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)==0 and check==0:
+			check=1
+			print "Y-height at the bottom:"
+			print sy[i,0]
 	
 	return [t,sx,sy,vx,vy,ax,ay]
 #this is to locate the takeoff
@@ -86,15 +89,42 @@ def takeoff2(ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
 	kode=1
 	while rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)>-takeoffAngle and kode<steps:
 		kode=kode+1
+		if sy[kode,0]+ylengthstr>takeoffHeight and rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)<0: 
+			print "Warniiing!!, takeofHeight reached, but angle not!!! fix your parameters stupid!! \n Angle now:"
+			trueAngle=arctan2(sy[kode,0]-sy[kode-1,0],sx[kode,0]-sx[kode-1,0])*360./2./pi
+			print trueAngle
+			break
 		if kode==steps-1: print "Warning warning, timesteps not reaching takeoff!!"
 	while sy[kode,0]+ylengthstr<takeoffHeight:
 		kode=kode+1
 		if kode>=steps-1:print "Warning warning, timesteps reached max, fix inrun2.py!!"
-	print kode 
-	print "--maximum--" 
-	print steps
+	#print kode 
+	#print "--maximum--" 
+	#print steps
+	print "Y-height at the takeoff:"
+	print sy[kode,0]
+
+	startAngleTrue=arctan2(sy[30,0]-sy[29,0],sx[30,0]-sx[29,0])*360./2./pi
+	print "starting angle as computed:"
+	print startAngleTrue
+	#same with acceleration
+	startAngleTrue=arctan2(ay[30,0],ax[30,0])*360./2./pi
+	print "starting angle as computed by acceleration:"
+	print startAngleTrue
+	trueAngle=arctan2(sy[kode,0]-sy[kode-1,0],sx[kode,0]-sx[kode-1,0])*360./2./pi
+	print "takeoffAngle now:"
+	print trueAngle
+	#same with acceleration 
+	trueAngle=arctan2(vy[kode,0],vx[kode,0])*360./2./pi
+	print "takeoffAngle now by speed:"
+	print trueAngle
+	print "Testing Testing"
+
+	pylab.plot(vx[kode,0],vy[kode,0],'o')
+	pylab.plot(vx[kode-1,0],vy[kode-1,0],'o')
 	return [kode,sx[kode,0],sy[kode,0],vx[kode,0],vy[kode,0]]
 	
+
 
 # include this trick
 
@@ -103,16 +133,16 @@ if __name__ == '__main__':
 
 	radius=20.	#this is global constant, radius of the transitions
 	runangle=31.*2.*pi/360.		#angle of the inrun, straight section
-	flat=5.		#length of flat section before takeof
+	flat=10.		#length of flat section before takeof
 	takeoffAngle=31.*2.*pi/360.	#angle of takeoff
-	takeoffHeight=1.		#height of takeoff
+	takeoffHeight=3.5 -(radius-cos(takeoffAngle)*radius) 		#height of takeoff
 	ylengthstr=25.-(radius-cos(runangle)*radius)	#-yheight when transition starts, 0 is strarting level, 20 radius
 	[t,sx,sy,vx,vy,ax,ay]=inrun(runangle,0,0,0,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)
 	[kode,sxloppu,syloppu,vxloppu,vyloppu]=takeoff2(ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)
 	pylab.plot(sx[:kode],sy[:kode])
-	print (ylengthstr/tan(runangle)+radius*sin(runangle))+flat
-	print [vxloppu,vyloppu]
-	print sqrt(vxloppu**2+vyloppu**2)
+	#print (ylengthstr/tan(runangle)+radius*sin(runangle))+flat
+	#print [vxloppu,vyloppu]
+	#print sqrt(vxloppu**2+vyloppu**2)
 	pylab.plot(sxloppu,syloppu,'o')
 	pylab.plot([sxloppu,sxloppu+19,sxloppu+19+tan(35.*2.*pi/360.)*16.],[syloppu-4,syloppu-4,syloppu-4-16])
 	[t1,sx1,sy1,vx1,vy1,ax1,ay1]=lento.lento(sxloppu,syloppu,vxloppu,vyloppu)

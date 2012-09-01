@@ -2,6 +2,8 @@
 
 from __future__ import division # allows floating point division from integers
 import FreeCAD, Part, math
+import datetime
+import random
 from FreeCAD import Base
 from lento import lento
 from inrun2 import inrun
@@ -121,12 +123,64 @@ class LahtiTest2:
 
 def makeLahtiTest2():
     doc = FreeCAD.activeDocument()
+    pic = App.activeDocument()
+    if pic == None:
+	pic = App.newDocument()
     if doc == None:
         doc = FreeCAD.newDocument()
-    lahtiTest2=doc.addObject("Part::FeaturePython","Lahti_testing") #add object to document
-    lahtiTest2.Label = "Lahti testing"
+    lahtiTest2=doc.addObject("Part::FeaturePython","Urpo") #add object to document
+    lahtiTest2.Label = "Urponkuva"
     LahtiTest2(lahtiTest2)
     lahtiTest2.ViewObject.Proxy=0
+    App.activeDocument().addObject('Drawing::FeaturePage','Page')
+    App.activeDocument().Page.Template = App.getResourceDir()+'Mod/Drawing/Templates/A3_Landscape.svg'    
+#    App.activeDocument().Page.EditableTexts[0]='Joku muu'
+    App.activeDocument().Page.EditableTexts = ['Lefthanded inc.','23 ad.','Apes',str(datetime.date.today()),'1:1000','320kg','1','112','Jump','2012/13']
+#Editables in order of appearance:
+#Me and my gay friends
+#1990 ekr
+#Tuomo the Superwisor
+#Deadline yesterday
+#1:1000
+#WEIGHT
+#NUMBER
+#SHEET
+#SOTS
+#Lahti 2013
 
+
+    App.activeDocument().addObject('Drawing::FeatureViewPart','View')
+    App.activeDocument().View.Source = App.activeDocument().Urpo
+    App.activeDocument().View.Direction = (0.0,0.0,1.0)
+    App.activeDocument().View.X = 10.0
+    App.activeDocument().View.Y = 10.0
+    App.activeDocument().Page.addObject(App.activeDocument().View)
+    App.activeDocument().View.X = 30.0
+    App.activeDocument().View.Y = 30.0
+    App.activeDocument().View.Scale = 1.5
+
+    App.activeDocument().addObject('Drawing::FeatureViewPart','ViewRot')
+    App.activeDocument().ViewRot.Source = App.activeDocument().Urpo
+    App.activeDocument().ViewRot.Direction = (0.0,-1.0,0.0)
+    App.activeDocument().ViewRot.X = 240.0
+    App.activeDocument().ViewRot.Y = 180.0
+    App.activeDocument().ViewRot.Scale = 1.8
+    App.activeDocument().ViewRot.Rotation = 90.0
+    App.activeDocument().Page.addObject(App.activeDocument().ViewRot) 
+
+    App.activeDocument().addObject('Drawing::FeatureViewPart','ViewIso')
+    App.activeDocument().ViewIso.Source = App.activeDocument().Urpo
+    App.activeDocument().ViewIso.Direction = (0.5,1.0,1.0)
+    App.activeDocument().ViewIso.X = 285.0
+    App.activeDocument().ViewIso.Y = 190.0
+    App.activeDocument().ViewIso.Scale = 1.4
+    App.activeDocument().ViewIso.ShowHiddenLines = True
+    App.activeDocument().Page.addObject(App.activeDocument().ViewIso) 
+
+    App.activeDocument().recompute()
+
+    print "Resulting SVG document: ",App.activeDocument().Page.PageResult
+    file = open(App.activeDocument().Page.PageResult,"r")
+    print "Result page is ",len(file.readlines())," lines long"
 if __name__ == "__main__": #feature will be generated after macro execution
     makeLahtiTest2()
