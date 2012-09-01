@@ -8,7 +8,7 @@ import lento
 #all angles given in radians!!!!
 
 #time steps size, 100seconds / how many steps
-steps=300.
+steps=600.
 dt=7.0/steps
 D=.4	#airresistance crossectional constant
 g=9.81	#gravity
