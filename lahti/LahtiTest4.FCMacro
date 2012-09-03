@@ -15,27 +15,25 @@ class LahtiTest2:
         ''' Add the properties: Korkeus, Leveys, Pituus, Segments (see Property View) '''
         obj.addProperty("App::PropertyLength","Korkeus","Laatikko","Laatikon korkeus").Korkeus=20.0
         obj.addProperty("App::PropertyLength","Leveys","Laatikko","Laatikon leveys").Leveys=30.0
-        obj.addProperty("App::PropertyLength","Pituus","Laatikko","Length of the block").Pituus=20.0
+        obj.addProperty("App::PropertyLength","Pituus","Laatikko","Length of the block").Pituus=18.0
         obj.addProperty("App::PropertyLength","Segments","Laatikko","Number of the line segments").Segments=72
         obj.addProperty("App::PropertyLength","AlasKulma","Laatikko","Alastulon kulma").AlasKulma=30.0
-        obj.addProperty("App::PropertyLength","AlasKorkeus","Laatikko","Alastulon korkeus").AlasKorkeus=20.0
-        obj.addProperty("App::PropertyLength","Nopeus","Laatikko","Nopeus nokalla km/h").Nopeus=40.0
-        obj.addProperty("App::PropertyLength","InrunHeight","Laatikko","Inrun korkeus").InrunHeight=25.0
+        obj.addProperty("App::PropertyLength","AlasKorkeus","Laatikko","Alastulon korkeus").AlasKorkeus=17.0
+        obj.addProperty("App::PropertyLength","InrunHeight","Laatikko","Inrun korkeus").InrunHeight=27.0
         obj.addProperty("App::PropertyLength","RunAngle","Laatikko","Vauhdinoton kulma").RunAngle=31.0
         obj.addProperty("App::PropertyLength","Radius","Laatikko","Transition sade").Radius=20.0
         obj.addProperty("App::PropertyLength","Flat","Laatikko","Flatin pituus").Flat=5.0
-        obj.addProperty("App::PropertyLength","TakeoffAngle","Laatikko","Takeoff angle").TakeoffAngle=36.0
+        obj.addProperty("App::PropertyLength","TakeoffAngle","Laatikko","Takeoff angle").TakeoffAngle=35.0
         obj.addProperty("App::PropertyLength","TakeoffHeight","Laatikko","Takeoff height").TakeoffHeight=4.0
         obj.Proxy = self
 
     def onChanged(self, fp, prop):
-        if prop == "Nopeus" or prop == "Korkeus" or prop == "Leveys" or prop == "Pituus" or prop == "Segments" or prop=="AlasKorkeus" or prop == "AlasKulma" or prop == "InrunHeight" or prop == "RunAngle" or prop == "Radius" or prop== "Flat" or prop == "TakeoffAngle" or prop == "TakeoffHeight" : #if one of these is changed
+        if prop == "Korkeus" or prop == "Leveys" or prop == "Pituus" or prop == "Segments" or prop=="AlasKorkeus" or prop == "AlasKulma" or prop == "InrunHeight" or prop == "RunAngle" or prop == "Radius" or prop== "Flat" or prop == "TakeoffAngle" or prop == "TakeoffHeight" : #if one of these is changed
             self.execute(fp)
 
     def execute(self, fp): #main part of script
         steps=int(fp.Segments) #get value from property
         
-        nop=fp.Nopeus
         kor=fp.Korkeus
         lev=fp.Leveys
         pit=fp.Pituus
