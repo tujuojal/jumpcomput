@@ -30,6 +30,19 @@ def tran1(xx,kalku):
 #takeoffHeight is height of takeoff after the tranny
 #
 def rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
+	"""rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)
+	where 
+	x=x-coordinate
+	ylengthstr= height of inrun from top to lowest point
+	runangle= angle of inrun in radians!!
+	radius = radius of transitions
+	flat = length of flat before takeoff
+	takeoffAngle = angle of takeoff
+	takeoffHeight = height of takeoff from lowest point of inrun to end of takeoff
+
+	returns an angle of inrun at current x-coordinate
+	in radians
+	"""
 	if tan(runangle)*x<ylengthstr:
 		y=tan(runangle)
 		return runangle
@@ -43,12 +56,35 @@ def rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
 		return -takeoffAngle
 
 def invradius(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
+	"""
+	invradius(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)
+	returns inverse radius at x-coord of inrun, used to correct the support force of inrun 
+	(and therefore frictional force) in transitions
+	"""
 	if rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)>=runangle or -takeoffAngle>=rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight) or abs(rinnekulma(x,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)) == 0:
 		return 0
 	else:
 		return 1./radius
 	
 def inrun(kalku,valku,sxalku,syalku,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
+	"""
+	kalku=angle of speed at beginning
+	valku=velocity at beginning
+	sxalku=x-coordinate at begin
+	syalku=y-coordinate at begin
+	ylengthstr= height of inrun from top to lowest point
+	runangle= angle of inrun in radians!!
+	radius = radius of transitions
+	flat = length of flat before takeoff
+	takeoffAngle = angle of takeoff
+	takeoffHeight = height of takeoff from lowest point of inrun to end of takeoff
+
+	as in flight.py
+	airresistance quadratic wrt speed
+	D=0.4 constant from http://biomekanikk.nih.no/xchandbook/ski4.html
+	friction coefficient
+	C=0.055
+	"""
 	#radius = radius# same radius as in tran1, 
 	#lasketaan lentorata
 	#rinnekulma=kalku*2.0*pi/360.0 #angle of the slope, constant 45, maybe a function of dx at some point
@@ -85,6 +121,18 @@ def inrun(kalku,valku,sxalku,syalku,ylengthstr,runangle,radius,flat,takeoffAngle
 	return [t,sx,sy,vx,vy,ax,ay]
 #this is to locate the takeoff
 def takeoff2(ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
+	"""
+	takeoff2(ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)
+	to compute the information for takeoff
+	returns
+	array of 5 which includes:
+	timestep when at takeoff
+	x-coordinate
+	y-coodinate
+	x-component of speed
+	y-component of speed
+
+	"""
 	[t,sx,sy,vx,vy,ax,ay]=inrun(runangle,0,0,0,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)
 	kode=1
 	while rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)>-takeoffAngle and kode<steps:
