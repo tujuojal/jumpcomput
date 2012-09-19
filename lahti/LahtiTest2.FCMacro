@@ -4,11 +4,11 @@ from __future__ import division # allows floating point division from integers
 import FreeCAD, Part, math
 from FreeCAD import Base
 from lento import lento
-from inrun import inrun
-from inrun import takeoff
+from inrun2 import inrun
+from inrun2 import takeoff2
 from scipy import *
 
-class LahtiTest1:
+class LahtiTest2:
     def __init__(self, obj):
         ''' Add the properties: Korkeus, Leveys, Pituus, Segments (see Property View) '''
         obj.addProperty("App::PropertyLength","Korkeus","Laatikko","Laatikon korkeus").Korkeus=20.0
@@ -23,10 +23,11 @@ class LahtiTest1:
         obj.addProperty("App::PropertyLength","Radius","Laatikko","Transition sade").Radius=20.0
         obj.addProperty("App::PropertyLength","Flat","Laatikko","Flatin pituus").Flat=5.0
         obj.addProperty("App::PropertyLength","TakeoffAngle","Laatikko","Takeoff angle").TakeoffAngle=36.0
+        obj.addProperty("App::PropertyLength","TakeoffHeight","Laatikko","Takeoff height").TakeoffHeight=4.0
         obj.Proxy = self
 
     def onChanged(self, fp, prop):
-        if prop == "Nopeus" or prop == "Korkeus" or prop == "Leveys" or prop == "Pituus" or prop == "Segments" or prop=="AlasKorkeus" or prop == "AlasKulma" or prop == "InrunHeight" or prop == "RunAngle" or prop == "Radius" or prop== "Flat" or prop == "TakeoffAngle" : #if one of these is changed
+        if prop == "Nopeus" or prop == "Korkeus" or prop == "Leveys" or prop == "Pituus" or prop == "Segments" or prop=="AlasKorkeus" or prop == "AlasKulma" or prop == "InrunHeight" or prop == "RunAngle" or prop == "Radius" or prop== "Flat" or prop == "TakeoffAngle" or prop == "TakeoffHeight" : #if one of these is changed
             self.execute(fp)
 
     def execute(self, fp): #main part of script
@@ -36,16 +37,17 @@ class LahtiTest1:
         kor=fp.Korkeus
         lev=fp.Leveys
         pit=fp.Pituus
-        kul=fp.TakeoffAngle
         alaskul = fp.AlasKulma
         alaskor = fp.AlasKorkeus          
-	ylengthstr = fp.InrunHeight
 	runangle = fp.RunAngle
 	radius = fp.Radius
+	ylengthstr = fp.InrunHeight - (radius - cos(runangle)*radius) #this is height of the straight section of inrun
 	flat = fp.Flat
+        kul=fp.TakeoffAngle
+	takekork=fp.TakeoffHeight - (radius-cos(kul)*radius) #this is the total height of the takeoff, not correct if desired angle of takeoff is not reached at this point
        
-	inruninfo = inrun(runangle*2.*pi/360.,0,0,0,ylengthstr,runangle*2.*pi/360.,radius,flat)				#inrun path
-	[kode,sxloppu,syloppu,vxloppu,vyloppu] = takeoff(ylengthstr,runangle*2.*pi/360.,radius,flat,-kul*2.*pi/360.) #checkin the takeoff point
+	inruninfo = inrun(runangle*2.*pi/360.,0,0,0,ylengthstr,runangle*2.*pi/360.,radius,flat,kul*2.*pi/360.,takekork)				#inrun path
+	[kode,sxloppu,syloppu,vxloppu,vyloppu] = takeoff2(ylengthstr,runangle*2.*pi/360.,radius,flat,kul*2.*pi/360.,takekork) #checkin the takeoff point
 	print kode
 	print vyloppu
 
@@ -71,6 +73,7 @@ class LahtiTest1:
         	if i==0:
         		segInrun=Part.makeLine((inruninfo[1][i,0],0,inruninfo[2][i,0]),(inruninfo[1][i+1,0],0,inruninfo[2][i+1,0]))
         		wireInrun=Part.Wire([segInrun])
+			print "eka indeksi"
         		
         	else:
         		segInrun=Part.makeLine((inruninfo[1][i,0],0,inruninfo[2][i,0]),(inruninfo[1][i+1,0],0,inruninfo[2][i+1,0]))
@@ -108,14 +111,14 @@ class LahtiTest1:
         final=Part.Compound([extInrun,extflight,ext,exttake,extland])
         fp.Shape = final #ext #result shape
 
-def makeLahtiTest1():
+def makeLahtiTest2():
     doc = FreeCAD.activeDocument()
     if doc == None:
         doc = FreeCAD.newDocument()
-    lahtiTest1=doc.addObject("Part::FeaturePython","Lahti_testing") #add object to document
-    lahtiTest1.Label = "Lahti testing"
-    LahtiTest1(lahtiTest1)
-    lahtiTest1.ViewObject.Proxy=0
+    lahtiTest2=doc.addObject("Part::FeaturePython","Lahti_testing") #add object to document
+    lahtiTest2.Label = "Lahti testing"
+    LahtiTest2(lahtiTest2)
+    lahtiTest2.ViewObject.Proxy=0
 
 if __name__ == "__main__": #feature will be generated after macro execution
-    makeLahtiTest1()
+    makeLahtiTest2()

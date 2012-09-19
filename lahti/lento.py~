@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 from scipy import *
-#import pylab
-#import inrun
+import pylab
+import inrun
 
 	
 def lento(sxalku,syalku,vxalku,vyalku):

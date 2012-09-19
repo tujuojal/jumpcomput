@@ -1,11 +1,26 @@
 #!/usr/bin/python
 
-from scipy import *
+#uncomment the following if you want to use this as a function, ability to plot the path with matplotlib
+#also uncomment the main function from the end, now just to be used a module
+#from scipy import *
 #import pylab
 #import inrun
 
 	
 def lento(sxalku,syalku,vxalku,vyalku):
+	""" computing the flightpath
+	lento(sxalku,ayalku,vxalku,vyalku)
+	given parameters are starting values x-coordinate, y-coordinate, x-component of speed, y-component of speed
+	output is a (7 x steps)- matrix with values of time, x-coord, y-coord, x-speed, y-speed, x-accel, y-accel
+	for each timestep from 0 to time 2.5 seconds
+
+	foreward stepping scheme
+	airresistance crossectional constant D = 0.4, 
+	mass of rider m = 80kg
+	gravity g = 9.81
+	airresistant coefficient A=D/m
+	D=0.4 taken from http://biomekanikk.nih.no/xchandbook/ski4.html 
+	"""
 	#lasketaan lentorata
 	#time steps size, 100seconds / how many steps
 	steps=100
@@ -36,8 +51,8 @@ def lento(sxalku,syalku,vxalku,vyalku):
 	#forward stepping solution with finite differences for speed  
 	for i in range(len(t)-1):
 		t[i+1,0]=t[i,0]+dt
-		ax[i+1,0]=-sqrt(vx[i,0]**2+vy[i,0]**2)*vx[i,0]*A
-		ay[i+1,0]=-g-sqrt(vy[i,0]**2+vx[i,0]**2)*vy[i,0]*A
+		ax[i+1,0]=-(vx[i,0]**2+vy[i,0]**2)**(.5)*vx[i,0]*A
+		ay[i+1,0]=-g-(vy[i,0]**2+vx[i,0]**2)**(.5)*vy[i,0]*A
 		vx[i+1,0]=dt*ax[i+1,0]+vx[i,0]
 		vy[i+1,0]=dt*ay[i+1,0]+vy[i,0]
 		sx[i+1,0]=dt*vx[i+1,0]+sx[i,0]

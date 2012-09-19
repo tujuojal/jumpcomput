@@ -1,0 +1,99 @@
+#### 15.09.2012
+#### created by: Tuomo
+#### tuomo.ojala@gmail.com
+
+This is not a program, just a macro for CAD drawing program called FreeCad. You don't need 
+any knowledge on CAD drawing, the idea of this macro is to do all that for you.
+This info is to help you get started.
+
+
+Disclaimer:
+------------------------------------------------------------------
+Do not build anything relying only on 
+the computations given by this macro. Use your own reasoning, and better yet 
+some active snowboarders that have experience on this sort of things. And most
+important, if possible build your kicker on a real slope (not with scaffolding)
+and with EXPERIENCED 
+snowcat driver! If you don't know one, let me know, I can hook you up.
+
+I take no responsibility whatsoever if you build or test something relying even in indicative way 
+on computations done by this macro. That should be clear, but it's fun to say so anyway ;-)
+
+Current coefficients are taken 
+from http://biomekanikk.nih.no/xchandbook/ski4.html
+and might be close to correct or not. 
+If you can give me better resource or even data from your own experiments, please feel free to 
+contact me.
+------------------------------------------------------------------
+
+
+Installing:
+------------1.--------------------
+You need to have working python with scipy on your computer.
+see: www.scipy.org
+another thing you need is FreeCad.
+see: http://sourceforge.net/projects/free-cad/
+
+Depenging on your os, there should be versions available. 
+
+for mac users 
+http://www.enthought.com/products/open-scipy.php have wrapped the necessary 
+packages (haven't tried that myself, so can't guarantee anything)
+
+for ubuntu, you can probably get everything from repos, including freecad, just using synaptic and that will take care of all dependences.
+
+for winblows I have no idea.
+
+---------------2.--------------------
+save all the files in same directory
+
+Usage:
+------------------1.-------------------
+In FreeCad, click: Tools--->Macros...
+
+from Execute macro window that opens
+to Macro destination:
+/write/the/path/to/directory/where/files/are
+
+choose one of *.FCMacro files
+if there is many 
+(depends what version you are trying if this is old README)
+
+click: Execute
+
+on Project sheet choose Urponkuva (or whatever name the new object has)
+now you can play around with parameters on Data: each change of parameters will
+cause the macro to be recomputed and the object recreated,
+as well as the svg picture redrawn. 
+
+on Report view you will have information on the computations, 
+some usefull some not. Good luck, don't hurt yourself!
+
+tuomo.
+
+ps.
+this part is for those interested in physics, math or programming:
+
+Airdrag is computed as quadratic force wrt speed with coefficient
+corresponding to above mentioned article.
+Friction is from the same article, causing force according the support from
+the slope.
+
+For the computation of the path, only accelerations are computed according
+to the slope parameters at given horizontal position, so the inrun is not drawn exactly correct due to numerical error!! This should help spot the mistakes 
+in the code. On transitions, centrifugal force needed to maintain the path of 
+transition is added and it's effect to frictional force is also computed.
+
+Solver is the simplest possible, forward stepping finite difference for 
+derivative. When transitions get too tight, there might be problems with the
+accuracy, but you should anyway avoid too tight transitions, and if needed the
+precision can be improved.
+
+Feel free to alter the code if you can. I'm not giving instructions: first 
+because I'm not a programmer, which you will notice if you are. And second,
+because I try to add all the needed functionality in easy to use way, so that
+nonprogrammers can use those too.
+But if you alter the code and you are willing to share your work, please let me
+know, lets make jumps better!
+Peace!
+
