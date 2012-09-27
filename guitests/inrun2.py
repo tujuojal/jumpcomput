@@ -1,6 +1,9 @@
 
 #!/usr/bin/python
-
+"""
+This computes the inrun for the python gui
+nothing is final, bugs included
+"""
 from scipy import *
 import pylab
 import lento
@@ -8,8 +11,8 @@ import lento
 #all angles given in radians!!!!
 
 #time steps size, 100seconds / how many steps
-steps=600.
-dt=7.0/steps
+steps=2600.
+dt=17.0/steps
 D=.4	#airresistance crossectional constant
 g=9.81	#gravity
 m=80	#average mass of rider
@@ -137,15 +140,16 @@ def takeoff2(ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
 	kode=1
 	while rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)>-takeoffAngle and kode<steps:
 		kode=kode+1
-		if sy[kode,0]+ylengthstr>takeoffHeight and rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)<0: 
+		if sy[kode,0]+ylengthstr+(radius-cos(runangle)*radius)>takeoffHeight and rinnekulma(sx[kode,0],ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)<0: 
 			print "Warniiing!!, takeofHeight reached, but angle not!!! fix your parameters stupid!! \n Angle now:"
 			trueAngle=arctan2(sy[kode,0]-sy[kode-1,0],sx[kode,0]-sx[kode-1,0])*360./2./pi
 			print trueAngle
 			break
 		if kode==steps-1: print "Warning warning, timesteps not reaching takeoff!!"
-	while sy[kode,0]+ylengthstr<takeoffHeight:
+	while sy[kode,0]+ylengthstr+(radius-cos(runangle)*radius)<takeoffHeight:
 		kode=kode+1
 		if kode>=steps-1:print "Warning warning, timesteps reached max, fix inrun2.py!!"
+		break
 	#print kode 
 	#print "--maximum--" 
 	#print steps
@@ -179,12 +183,12 @@ def takeoff2(ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
 if __name__ == '__main__': 
 ##rest after
 
-	radius=20.	#this is global constant, radius of the transitions
-	runangle=31.*2.*pi/360.		#angle of the inrun, straight section
+	radius=15.	#this is global constant, radius of the transitions
+	runangle=20.*2.*pi/360.		#angle of the inrun, straight section
 	flat=10.		#length of flat section before takeof
-	takeoffAngle=31.*2.*pi/360.	#angle of takeoff
-	takeoffHeight=3.5 -(radius-cos(takeoffAngle)*radius) 		#height of takeoff
-	ylengthstr=25.-(radius-cos(runangle)*radius)	#-yheight when transition starts, 0 is strarting level, 20 radius
+	takeoffAngle=46.*2.*pi/360.	#angle of takeoff
+	takeoffHeight=5.5  #-(radius-cos(takeoffAngle)*radius)		#height of takeoff
+	ylengthstr=31.-(radius-cos(runangle)*radius)	#-yheight when transition starts, 0 is strarting level, 20 radius
 	[t,sx,sy,vx,vy,ax,ay]=inrun(runangle,0,0,0,ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)
 	[kode,sxloppu,syloppu,vxloppu,vyloppu]=takeoff2(ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight)
 	pylab.plot(sx[:kode],sy[:kode])
