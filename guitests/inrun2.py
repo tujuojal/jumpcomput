@@ -145,11 +145,14 @@ def takeoff2(ylengthstr,runangle,radius,flat,takeoffAngle,takeoffHeight):
 			trueAngle=arctan2(sy[kode,0]-sy[kode-1,0],sx[kode,0]-sx[kode-1,0])*360./2./pi
 			print trueAngle
 			break
-		if kode==steps-1: print "Warning warning, timesteps not reaching takeoff!!"
+		if kode==steps-1: 
+		        print "Warning warning, timesteps not reaching takeoff!!"
 	while sy[kode,0]+ylengthstr+(radius-cos(runangle)*radius)<takeoffHeight:
+		print "angle ok, reaching for height!!"
 		kode=kode+1
-		if kode>=steps-1:print "Warning warning, timesteps reached max, fix inrun2.py!!"
-		break
+		if kode>=steps-1:
+		        print "Warning warning, timesteps reached max, fix inrun2.py!!"
+		        break
 	#print kode 
 	#print "--maximum--" 
 	#print steps
