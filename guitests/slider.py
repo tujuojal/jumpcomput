@@ -6,16 +6,20 @@ import wx
 import numpy
 import matplotlib
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas, \
+		NavigationToolbar2WxAgg as NavigationToolbar
 from lento import lento
 from inrun2 import inrun
 from inrun2 import takeoff2
 from scipy import *
+import os
 
 class Example(wx.Frame):
-           
-    def __init__(self, *args, **kw):
-        super(Example, self).__init__(*args, **kw) 
+    """ Just first tests...."""
+    title = 'EasyJumpComputatio'
+
+    def __init__(self):
+        wx.Frame.__init__(self,None,-1,self.title) 
         
 
         #constants, aka variables that will be binded to sliders
@@ -28,8 +32,26 @@ class Example(wx.Frame):
 
         self.InitUI()
         self.drawFigure()
+	self.create_menu()
+	self.create_status_bar()
         
-
+    def create_menu(self):
+        self.menubar = wx.MenuBar()
+        
+        menu_file = wx.Menu()
+        m_expt = menu_file.Append(-1, "&Save plot\tCtrl-S", "Save plot to file")
+        self.Bind(wx.EVT_MENU, self.on_save_plot, m_expt)
+        menu_file.AppendSeparator()
+        m_exit = menu_file.Append(-1, "E&xit\tCtrl-X", "Exit")
+        self.Bind(wx.EVT_MENU, self.on_exit, m_exit)
+        
+        menu_help = wx.Menu()
+        m_about = menu_help.Append(-1, "&About\tF1", "About the demo")
+        self.Bind(wx.EVT_MENU, self.on_about, m_about)
+        
+        self.menubar.Append(menu_file, "&File")
+        self.menubar.Append(menu_help, "&Help")
+        self.SetMenuBar(self.menubar)
     def InitUI(self):   
 
         self.sp = wx.SplitterWindow(self)
@@ -87,27 +109,29 @@ class Example(wx.Frame):
 
 	button.Bind(wx.EVT_BUTTON,self.drawFigure)
 
-        self.sb = self.CreateStatusBar()
 
         self.SetSize((750, 530))
-        self.SetTitle('EasyJumpComputation')
         self.Centre()
         self.Show(True)     
 
-    def drawFigure(self,*args):
+    def create_status_bar(self):
+        self.statusbar = self.CreateStatusBar()
 
+    def drawFigure(self,*args):
+        self.dpi = 100
         self.computations()
-	self.figure = matplotlib.figure.Figure((5,4),dpi=100)
+	self.figure = matplotlib.figure.Figure((5,4),dpi=self.dpi)
 	self.canvas = FigureCanvas(self.pnl2,-1,self.figure)
 	self.axes = self.figure.add_subplot(111)
 	#self.y_max = 5
 	self.axes.plot(self.inrunsx,self.inrunsy)
 	self.axes.plot(self.lentosx,self.lentosy)
+	self.toolbar = NavigationToolbar(self.canvas)
 
     def OnWidgetEnter(self, e):
         
         name = e.GetEventObject().GetClassName()
-        self.sb.SetStatusText(name + ' widget')
+        self.statusbar.SetStatusText(name + ' widget')
         e.Skip()               
         
     def OnScroll(self,e):
@@ -162,11 +186,59 @@ class Example(wx.Frame):
 ##	#for i in range(len(t)-1):
 ##	#	print rinnekulma(sx[i,0])
 #		#print arctan2(vy[i,0],vx[i,0])*360./2./pi
+    
+    def on_save_plot(self, event):
+        file_choices = "PNG (*.png)|*.png"
+        
+        dlg = wx.FileDialog(
+            self, 
+            message="Save plot as...",
+            defaultDir=os.getcwd(),
+            defaultFile="plot.png",
+            wildcard=file_choices,
+            style=wx.SAVE)
+        
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            self.canvas.print_figure(path, dpi=self.dpi)
+            self.flash_status_message("Saved to %s" % path)
+        else:
+		self.flash_status_message("Not saved!! ERROR ERROR")
+           
+    def on_about(self, event):
+        msg = """ A demo using wxPython with matplotlib:
+        
+         * Use the matplotlib navigation bar
+         * Add values to the text box and press Enter (or click "Draw!")
+         * Show or hide the grid
+         * Drag the slider to modify the width of the bars
+         * Save the plot to a file using the File menu
+         * Click on a bar to receive an informative message
+        """
+        dlg = wx.MessageDialog(self, msg, "About", wx.OK)
+        dlg.ShowModal()
+        dlg.Destroy() 
+
+    def flash_status_message(self, msg, flash_len_ms=1500):
+        self.statusbar.SetStatusText(msg)
+        self.timeroff = wx.Timer(self)
+        self.Bind(
+            wx.EVT_TIMER, 
+            self.on_flash_status_off, 
+            self.timeroff)
+        self.timeroff.Start(flash_len_ms, oneShot=True)
+    
+    def on_flash_status_off(self, event):
+        self.statusbar.SetStatusText('')
+
+    def on_exit(self, event):
+        self.Destroy()
+
 
 def main():
     
     ex = wx.App()
-    Example(None)
+    Example()
     ex.MainLoop()    
 
 if __name__ == '__main__':
