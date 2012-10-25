@@ -8,8 +8,8 @@ from scipy import *
 def lento(sxalku,syalku,vxalku,vyalku):
 	#lasketaan lentorata
 	#time steps size, 100seconds / how many steps
-	steps=100
-	dt=2.5/steps
+	steps=200
+	dt=4.5/steps
 	#constants
 	D=0.4#1.	#maybe 1.3?	# airresistance crossectional constant F_d=1/2*ro*v^2*c_d*A
 	#where ro=density 1.225, A=crossectional area 1.5 m^2, c_d = drag coeff 1.5 

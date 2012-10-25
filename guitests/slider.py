@@ -46,7 +46,7 @@ class Example(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_exit, m_exit)
         
         menu_help = wx.Menu()
-        m_about = menu_help.Append(-1, "&About\tF1", "About the demo")
+        m_about = menu_help.Append(-1, "&About\tF1", "About the computation")
         self.Bind(wx.EVT_MENU, self.on_about, m_about)
         
         self.menubar.Append(menu_file, "&File")
@@ -206,14 +206,15 @@ class Example(wx.Frame):
 		self.flash_status_message("Not saved!! ERROR ERROR")
            
     def on_about(self, event):
-        msg = """ A demo using wxPython with matplotlib:
+        msg = """ A computation with airdrag and friction:
         
-         * Use the matplotlib navigation bar
-         * Add values to the text box and press Enter (or click "Draw!")
-         * Show or hide the grid
-         * Drag the slider to modify the width of the bars
-         * Save the plot to a file using the File menu
-         * Click on a bar to receive an informative message
+         * Constants of computation from ??
+         * Forward stepping scheme, no idea about numerical error
+         * Inrun is drawn according to path computed from forces
+         * Forces are computed according to geometry determined by parameters
+         * Lots of bugs, even in numerics probably
+         * 
+	 * Version 0.001
         """
         dlg = wx.MessageDialog(self, msg, "About", wx.OK)
         dlg.ShowModal()
