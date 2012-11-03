@@ -5,12 +5,12 @@ import pylab
 import inrun2
 import lento
 class Laatikko:
-    def __init__(self):
+    def __init__(self,Drop=1,Length=14,Land_Angle=39.*2.*pi/360.,Land_Height=20):
 	    pieces=100		#how many pieces in box, at some point more complex geometries!!
-            self.Drop=1		#drop from the takeoff
-            self.Length=14		#length of the table
-            self.Land_Angle=39.*2.*pi/360.	#angle of landing
-            self.Land_Height=20		#height of the landing
+            self.Drop=Drop		#drop from the takeoff
+            self.Length=Length		#length of the table
+            self.Land_Angle=Land_Angle	#angle of landing
+            self.Land_Height=Land_Height		#height of the landing
             self.xland=zeros((pieces,1))
             self.yland=zeros((pieces,1))
             self.curvelength=self.Length+self.Land_Height/sin(self.Land_Angle)	#length of the curve determining the box
