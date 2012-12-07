@@ -22,42 +22,52 @@ from matplotlib.figure import Figure
 
 
 app = Flask(__name__)
-app.angle=25.*2*numpy.pi/360.
 
 
 
 @app.route("/")
 def simple():
+    """"initializing the computations and calling the template"""
+    app.ir=inrun3.Inrun()
+    app.ir.inrun()
+    app.kode=app.ir.takeoff2()
+    app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
     return render_template('default.html')
 
 
 
 
 @app.route('/plot.png')
-def plot(angle=25.):
+def plot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*numpy.pi/360., takeoffHeight=4.):
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
-    runangle=angle*2.*numpy.pi/360.
-    ylengthstr=20.
-    radius=20.
-    app.ir=inrun3.Inrun()
+    
+    
+
+    app.ir.ylengthstr=ylengthstr
+    app.ir.runangle=angle*2.*numpy.pi/360.
+    app.ir.radius=radius
+    app.ir.flat=flat
+    app.ir.takeoffAngle=takeoffAngle
+    app.ir.takeoffHeight=takeoffHeight
+
+
     app.ir.inrun()
-    kode=app.ir.takeoff2()
+    app.kode=app.ir.takeoff2()
 
-    sxloppu=app.ir.sx[kode]
-    syloppu=app.ir.sy[kode]
-    vxloppu=app.ir.vx[kode]
-    vyloppu=app.ir.vy[kode]
+    sxloppu=app.ir.sx[app.kode]
+    syloppu=app.ir.sy[app.kode]
+    vxloppu=app.ir.vx[app.kode]
+    vyloppu=app.ir.vy[app.kode]
 
-    lent=lento2.Lento(sxloppu,syloppu,vxloppu,vyloppu)
-    lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
+    app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
 	
 #test for plotting computations
-    xs = lent.sx
-    ys = lent.sy
+    xs = app.lent.sx
+    ys = app.lent.sy
 
     axis.plot(xs, ys)
-    axis.plot(app.ir.sx[:kode], app.ir.sy[:kode])
+    axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode])
     canvas = FigureCanvas(fig)
     output = StringIO.StringIO()
     canvas.print_png(output)
@@ -77,10 +87,6 @@ def show_user_profile(username):
 def show_post(post_id):
     # show the post with the given id, the id is an integer
     return 'Post %d' % post_id
-
-@app.route('/plot/<float:angle>')
-def recompute(angle):
-    return plot(angle)
 
 if __name__ == '__main__':
     app.run(debug=True)
