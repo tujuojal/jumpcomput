@@ -16,24 +16,35 @@ import numpy
 import lento2
 import inrun3
 
-from flask import Flask, make_response, render_template, url_for
+from flask import Flask, make_response, render_template, url_for, request
+from wtforms import Form, SelectMultipleField, DecimalField
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+
+class Data(Form):
+    radius = DecimalField('Radius of tranny',default=20)
+    angle = DecimalField('Angle of inrun',default=24)
 
 
 app = Flask(__name__)
 
-
-
-@app.route("/")
-def simple():
+def init():
     """"initializing the computations and calling the template"""
     app.ir=inrun3.Inrun()
     app.ir.inrun()
     app.kode=app.ir.takeoff2()
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
-    return render_template('default.html')
 
+@app.route("/", methods=['GET','POST'])
+def simple():
+    form = Data(request.form)
+    init()
+    if request.method == 'POST':
+        radius = request.form['radius']
+        return render_template('default.html')
+    
+    else:
+        return render_template('default.html')
 
 
 
@@ -62,7 +73,6 @@ def plot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*numpy
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
 	
-#test for plotting computations
     xs = app.lent.sx
     ys = app.lent.sy
 
