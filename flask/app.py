@@ -17,7 +17,7 @@ import lento2
 import inrun3
 
 from flask import Flask, make_response, render_template_string, url_for, request
-from wtforms import Form, SelectMultipleField, DecimalField
+from wtforms import Form, SelectMultipleField, DecimalField, FloatField
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -26,11 +26,11 @@ from matplotlib.figure import Figure
 ############################################################
 
 class Data(Form):
-    radius = DecimalField('Radius of tranny',default=20)
-    angle = DecimalField('Angle of inrun',default=24)
-    flat = DecimalField('Length of inrun-flat',default=5)
-    height = DecimalField('Height of Inrun',default=24)
-    takeheight = DecimalField('Height of Takeoff',default=4)
+    radius = FloatField('Radius of tranny',default=20)
+    angle = FloatField('Angle of inrun',default=24)
+    flat = FloatField('Length of inrun-flat',default=5)
+    height = FloatField('Height of Inrun',default=24)
+    takeheight = FloatField('Height of Takeoff',default=4)
 
 ###########################################################
 ## Templates for the html as filled and so ##
@@ -172,7 +172,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     app.axis = app.fig.add_subplot(1, 1, 1)
 
     app.ir.ylengthstr=app.form.height.data
-    app.ir.runangle=angle*2.*numpy.pi/360.
+    app.ir.runangle=app.form.angle.data*2.*numpy.pi/360.
     app.ir.radius=app.form.radius.data
     app.ir.flat=flat
     app.ir.takeoffAngle=takeoffAngle
