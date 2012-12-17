@@ -17,7 +17,12 @@ class Land:
             syötetään lentorata ja lasketaan osuuko alastuloon ja millä indeksillä
             """
             for i in range(len(lento.t)-1):
-                if lento.sx<self.xx[1] and lento.sy<self.yy[0]
+                if lento.sx[i]<self.xx[1] and lento.sy[i]<self.yy[0]
                     return i
-                else if
+                else if lento.sx[i]<self.xx[2] and lento.sy[i]<(self.yy[1]-self.yy[2])*(lento.sx[i]-self.xx[1])/(self.xx[2]-self.xx[1])
+                    return i
+                else if lento.sx[i]>self.xx[2]
+                    return i
+                else return
+                    len(lento.t)
 
