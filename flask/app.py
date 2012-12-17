@@ -28,9 +28,11 @@ from matplotlib.figure import Figure
 class Data(Form):
     radius = FloatField('Radius of tranny',default=20)
     angle = FloatField('Angle of inrun',default=24)
+    takeangle = FloatField('Angle of takeof',default=20)
     flat = FloatField('Length of inrun-flat',default=5)
     height = FloatField('Height of Inrun',default=24)
     takeheight = FloatField('Height of Takeoff',default=4)
+    desitime = FloatField('Hangtime',default=2)
 
 ###########################################################
 ## Templates for the html as filled and so ##
@@ -41,6 +43,10 @@ template_form = """
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <div class=page>
   <h1>Computatio</h1>
+  <p> This is a testsite for computations for kickers. Updates are coming.... </p>
+  <p>See
+  <a href="http://users.jyu.fi~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
+  </p>
     <div class=img>
         <img src="{{ url_for('plot') }}" height="100%" width="100%" alt="Big Boat"> 
     </div>
@@ -57,9 +63,11 @@ template_form = """
 <form method="POST" action="/">
     <div>{{ form.radius.label }} {{ form.radius() }}</div>
     <div>{{ form.angle.label }} {{ form.angle() }}</div>
-    <div>{{ form.flat.label }} {{ form.flat() }} {{ form.flat.data }}</div>
-    <div>{{ form.height.label }} {{ form.height() }} {{ form.height.data }}</div>
-    <div>{{ form.takeheight.label }} {{ form.takeheight() }} {{ form.takeheight.data }}</div>
+    <div>{{ form.flat.label }} {{ form.flat() }} </div>
+    <div>{{ form.height.label }} {{ form.height() }} </div>
+    <div>{{ form.takeheight.label }} {{ form.takeheight() }} </div>
+    <div>{{ form.takeangle.label }} {{ form.takeangle() }} </div>
+    <div>{{ form.desitime.label }} {{ form.desitime() }} </div>
     <button type="submit" class="btn">Submit</button>    
 </form>
 {% endblock %}
@@ -74,6 +82,10 @@ completed_template = """
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <div class=page>
   <h1>Computatio</h1>
+  <p> This is a testsite for computations for kickers. Updates are coming.... </p>
+  <p>See
+  <a href="http://users.jyu.fi~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
+  </p>
     <div class=img>
         <img src="{{ url_for('replot') }}" height="100%" width="100%" alt="Big Boat"> 
     </div>
@@ -89,9 +101,11 @@ completed_template = """
 <form method="POST" action="/">
     <div>{{ form.radius.label }} {{ form.radius() }} {{ form.radius.data }}</div>
     <div>{{ form.angle.label }} {{ form.angle() }} {{ form.angle.data }}</div>
+    <div>{{ form.takeangle.label }} {{ form.takeangle() }} {{ form.takeangle.data }}</div>
     <div>{{ form.flat.label }} {{ form.flat() }} {{ form.flat.data }}</div>
     <div>{{ form.height.label }} {{ form.height() }} {{ form.height.data }}</div>
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} {{ form.takeheight.data }}</div>
+    <div>{{ form.desitime.label }} {{ form.desitime() }} {{ form.desitime.data }}</div>
     <button type="submit" class="btn">Submit</button>    
 </form>
 
@@ -126,7 +140,7 @@ def simple():
 ##################################################
 
 @app.route('/plot.png')
-def plot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*numpy.pi/360., takeoffHeight=4.):
+def plot(angle=24., ylengthstr=24., radius=20., flat=4,takeoffAngle=20.*2.*numpy.pi/360., takeoffHeight=4.):
     app.fig = Figure()
     app.axis = app.fig.add_subplot(1, 1, 1)
     
@@ -150,11 +164,18 @@ def plot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*numpy
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
 	
+# there is time 4.5sec in lento2 
+# dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
+# by default desiredtime =2
+    desistep=int(2/app.lent.dt)
     xs = app.lent.sx
     ys = app.lent.sy
 
-    app.axis.plot(xs, ys)
-    app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode])
+    app.axis.plot(xs[:desistep], ys[:desistep],color="red",linewidth=2,label="flightpath")
+    app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
+#    app.axis.fill_between(app.ir.sx[:app.kode], -40, app.ir.sy[:app.kode], color="black" )
+
+    app.axis.legend(loc='upper right')
     app.canvas = FigureCanvas(app.fig)
     app.output = StringIO.StringIO()
     app.canvas.print_png(app.output)
@@ -189,11 +210,17 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
 	
+# there is time 4.5sec in lento2 
+# dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
+# by default desiredtime =2
+    desistep=int(app.form.desitime.data/app.lent.dt)
     xs = app.lent.sx
     ys = app.lent.sy
 
-    app.axis.plot(xs, ys)
-    app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode])
+    app.axis.plot(xs[:desistep], ys[:desistep],color="red",linewidth=2,label="flightpath")
+    app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
+#    app.axis.fill_between(app.ir.sx[:app.kode], -40, app.ir.sy[:app.kode], color="black" )
+    app.axis.legend(loc='upper right')
     app.canvas = FigureCanvas(app.fig)
     app.output = StringIO.StringIO()
     app.canvas.print_png(app.output)
