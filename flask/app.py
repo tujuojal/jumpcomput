@@ -15,6 +15,7 @@ import StringIO
 import numpy
 import lento2
 import inrun3
+import land
 
 from flask import Flask, make_response, render_template_string, url_for, request
 from wtforms import Form, SelectMultipleField, DecimalField, FloatField
@@ -33,6 +34,10 @@ class Data(Form):
     height = FloatField('Height of Inrun',default=24)
     takeheight = FloatField('Height of Takeoff',default=4)
     desitime = FloatField('Hangtime',default=2)
+    landlength = FloatField('Length of table', default = 10)
+    landangle = FloatField('Angle of landing', default = 24)
+    landheight = FloatField('Height of landing', default =20)
+    landdrop = FloatField('Drop from takeof', default = 1)
 
 ###########################################################
 ## Templates for the html as filled and so ##
@@ -68,6 +73,10 @@ template_form = """
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} </div>
     <div>{{ form.takeangle.label }} {{ form.takeangle() }} </div>
     <div>{{ form.desitime.label }} {{ form.desitime() }} </div>
+    <div>{{ form.landlength.label }} {{ form.landlength() }} </div>
+    <div>{{ form.landangle.label }} {{ form.landangle() }} </div>
+    <div>{{ form.landheight.label }} {{ form.landheight() }} </div>
+    <div>{{ form.landdrop.label }} {{ form.landdrop() }} </div>
     <button type="submit" class="btn">Submit</button>    
 </form>
 {% endblock %}
@@ -106,6 +115,10 @@ completed_template = """
     <div>{{ form.height.label }} {{ form.height() }} {{ form.height.data }}</div>
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} {{ form.takeheight.data }}</div>
     <div>{{ form.desitime.label }} {{ form.desitime() }} {{ form.desitime.data }}</div>
+    <div>{{ form.landlength.label }} {{ form.landlength() }} {{ form.landlength.data }}</div>
+    <div>{{ form.landangle.label }} {{ form.landangle() }} {{ form.landangle.data }}</div>
+    <div>{{ form.landheight.label }} {{ form.landheight() }} {{ form.landheight.data }}</div>
+    <div>{{ form.landdrop.label }} {{ form.landdrop() }} {{ form.landdrop.data }}</div>
     <button type="submit" class="btn">Submit</button>    
 </form>
 
@@ -121,6 +134,8 @@ def init():
     app.ir.inrun()
     app.kode=app.ir.takeoff2()
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
+    app.alast=land.Land()
+    app.osuma=app.alast.osu(app.lent)
 
 @app.route("/", methods=['GET','POST'])
 def simple():
