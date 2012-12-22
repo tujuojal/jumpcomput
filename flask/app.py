@@ -15,6 +15,7 @@ import StringIO
 import numpy
 import lento2
 import inrun3
+import land
 
 from flask import Flask, make_response, render_template_string, url_for, request
 from wtforms import Form, SelectMultipleField, DecimalField, FloatField
@@ -33,6 +34,10 @@ class Data(Form):
     height = FloatField('Height of Inrun',default=24)
     takeheight = FloatField('Height of Takeoff',default=4)
     desitime = FloatField('Hangtime',default=2)
+    landlength = FloatField('Length of table', default = 10)
+    landangle = FloatField('Angle of landing', default = 24)
+    landheight = FloatField('Height of landing', default =20)
+    landdrop = FloatField('Drop from takeof', default = 1)
 
 ###########################################################
 ## Templates for the html as filled and so ##
@@ -48,7 +53,7 @@ template_form = """
   <a href="http://users.jyu.fi~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
   </p>
     <div class=img>
-        <img src="{{ url_for('plot') }}" height="100%" width="100%" alt="Big Boat"> 
+        <img src="{{ url_for('plot') }}" height="80%" width="100%" alt="Big Boat"> 
     </div>
     
     <button type="button" onclick="alert('This will be a computation \n for simulating jumps')">Click Me!</button>
@@ -67,7 +72,11 @@ template_form = """
     <div>{{ form.height.label }} {{ form.height() }} </div>
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} </div>
     <div>{{ form.takeangle.label }} {{ form.takeangle() }} </div>
-    <div>{{ form.desitime.label }} {{ form.desitime() }} </div>
+    <div>{{ form.desitime.label }}  </div>
+    <div>{{ form.landlength.label }} {{ form.landlength() }} </div>
+    <div>{{ form.landangle.label }} {{ form.landangle() }} </div>
+    <div>{{ form.landheight.label }} {{ form.landheight() }} </div>
+    <div>{{ form.landdrop.label }} {{ form.landdrop() }} </div>
     <button type="submit" class="btn">Submit</button>    
 </form>
 {% endblock %}
@@ -97,7 +106,7 @@ completed_template = """
   {% block body %}{% endblock %}
 </div>
 {% block content %}
-<h1>Radius Selected</h1>
+<h1>Data selected</h1>
 <form method="POST" action="/">
     <div>{{ form.radius.label }} {{ form.radius() }} {{ form.radius.data }}</div>
     <div>{{ form.angle.label }} {{ form.angle() }} {{ form.angle.data }}</div>
@@ -105,7 +114,11 @@ completed_template = """
     <div>{{ form.flat.label }} {{ form.flat() }} {{ form.flat.data }}</div>
     <div>{{ form.height.label }} {{ form.height() }} {{ form.height.data }}</div>
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} {{ form.takeheight.data }}</div>
-    <div>{{ form.desitime.label }} {{ form.desitime() }} {{ form.desitime.data }}</div>
+    <div>{{ form.desitime.label }}  </div>
+    <div>{{ form.landlength.label }} {{ form.landlength() }} {{ form.landlength.data }}</div>
+    <div>{{ form.landangle.label }} {{ form.landangle() }} {{ form.landangle.data }}</div>
+    <div>{{ form.landheight.label }} {{ form.landheight() }} {{ form.landheight.data }}</div>
+    <div>{{ form.landdrop.label }} {{ form.landdrop() }} {{ form.landdrop.data }}</div>
     <button type="submit" class="btn">Submit</button>    
 </form>
 
@@ -113,6 +126,12 @@ completed_template = """
 {% endblock %}
 
 """
+
+
+###########################################################################
+## now the application itself ############
+###########################################
+
 app = Flask(__name__)
 
 def init():
@@ -121,6 +140,8 @@ def init():
     app.ir.inrun()
     app.kode=app.ir.takeoff2()
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
+    app.alast=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir.sx[app.kode],takesy=app.ir.sy[app.kode])
+    app.osuma=app.alast.osu(app.lent)
 
 @app.route("/", methods=['GET','POST'])
 def simple():
@@ -163,6 +184,11 @@ def plot(angle=24., ylengthstr=24., radius=20., flat=4,takeoffAngle=20.*2.*numpy
     vyloppu=app.ir.vy[app.kode]
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
+    app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
+    app.osuma=app.alast.osu(app.lent)
+    print "Osumakohtiaaaa!!"
+    print app.osuma
+
 	
 # there is time 4.5sec in lento2 
 # dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
@@ -171,8 +197,9 @@ def plot(angle=24., ylengthstr=24., radius=20., flat=4,takeoffAngle=20.*2.*numpy
     xs = app.lent.sx
     ys = app.lent.sy
 
-    app.axis.plot(xs[:desistep], ys[:desistep],color="red",linewidth=2,label="flightpath")
+    app.axis.plot(xs[:app.osuma], ys[:app.osuma],color="red",linewidth=2,label="flightpath")
     app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
+    app.axis.plot(app.alast.xx, app.alast.yy, color="black" , linewidth=1, label = "kicker")
 #    app.axis.fill_between(app.ir.sx[:app.kode], -40, app.ir.sy[:app.kode], color="black" )
 
     app.axis.legend(loc='upper right')
@@ -195,8 +222,8 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     app.ir.ylengthstr=app.form.height.data
     app.ir.runangle=app.form.angle.data*2.*numpy.pi/360.
     app.ir.radius=app.form.radius.data
-    app.ir.flat=flat
-    app.ir.takeoffAngle=takeoffAngle
+    app.ir.flat=app.form.flat.data
+    app.ir.takeoffAngle=app.form.takeangle.data*2.*numpy.pi/360.
     app.ir.takeoffHeight=app.form.takeheight.data
 
 
@@ -209,7 +236,11 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     vyloppu=app.ir.vy[app.kode]
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
+    app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
+    app.osuma=app.alast.osu(app.lent)
 	
+    print "Osumakohtiaaaa!!"
+    print app.osuma
 # there is time 4.5sec in lento2 
 # dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
 # by default desiredtime =2
@@ -219,6 +250,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
 
     app.axis.plot(xs[:desistep], ys[:desistep],color="red",linewidth=2,label="flightpath")
     app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
+    app.axis.plot(app.alast.xx, app.alast.yy, color="black" , linewidth=1, label = "kicker")
 #    app.axis.fill_between(app.ir.sx[:app.kode], -40, app.ir.sy[:app.kode], color="black" )
     app.axis.legend(loc='upper right')
     app.canvas = FigureCanvas(app.fig)
@@ -241,3 +273,4 @@ def show_post(post_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
