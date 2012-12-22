@@ -72,7 +72,11 @@ template_form = """
     <div>{{ form.height.label }} {{ form.height() }} </div>
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} </div>
     <div>{{ form.takeangle.label }} {{ form.takeangle() }} </div>
+<<<<<<< HEAD
     <div>{{ form.desitime.label }}  </div>
+=======
+    <div>{{ form.desitime.label }} {{ form.desitime() }} </div>
+>>>>>>> 6db6042208493d9b605d6e275b2332e9bc5dedb2
     <div>{{ form.landlength.label }} {{ form.landlength() }} </div>
     <div>{{ form.landangle.label }} {{ form.landangle() }} </div>
     <div>{{ form.landheight.label }} {{ form.landheight() }} </div>
@@ -114,7 +118,11 @@ completed_template = """
     <div>{{ form.flat.label }} {{ form.flat() }} {{ form.flat.data }}</div>
     <div>{{ form.height.label }} {{ form.height() }} {{ form.height.data }}</div>
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} {{ form.takeheight.data }}</div>
+<<<<<<< HEAD
     <div>{{ form.desitime.label }}  </div>
+=======
+    <div>{{ form.desitime.label }} {{ form.desitime() }} {{ form.desitime.data }}</div>
+>>>>>>> 6db6042208493d9b605d6e275b2332e9bc5dedb2
     <div>{{ form.landlength.label }} {{ form.landlength() }} {{ form.landlength.data }}</div>
     <div>{{ form.landangle.label }} {{ form.landangle() }} {{ form.landangle.data }}</div>
     <div>{{ form.landheight.label }} {{ form.landheight() }} {{ form.landheight.data }}</div>
@@ -140,7 +148,11 @@ def init():
     app.ir.inrun()
     app.kode=app.ir.takeoff2()
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
+<<<<<<< HEAD
     app.alast=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir.sx[app.kode],takesy=app.ir.sy[app.kode])
+=======
+    app.alast=land.Land()
+>>>>>>> 6db6042208493d9b605d6e275b2332e9bc5dedb2
     app.osuma=app.alast.osu(app.lent)
 
 @app.route("/", methods=['GET','POST'])
