@@ -16,6 +16,7 @@ import numpy
 import lento2
 import inrun3
 import land
+import inter
 
 from flask import Flask, make_response, render_template_string, url_for, request
 from wtforms import Form, SelectMultipleField, DecimalField, FloatField
@@ -50,10 +51,10 @@ template_form = """
   <h1>Computatio</h1>
   <p> This is a testsite for computations for kickers. Updates are coming.... </p>
   <p>See
-  <a href="http://users.jyu.fi~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
+  <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
   </p>
     <div class=img>
-        <img src="{{ url_for('plot') }}" height="80%" width="100%" alt="Big Boat"> 
+        <img src="{{ url_for('plot') }}" height="80%" width="100%" alt="Wait... computing in process..."> 
     </div>
     
     <button type="button" onclick="alert('This will be a computation \n for simulating jumps')">Click Me!</button>
@@ -96,15 +97,9 @@ completed_template = """
   <a href="http://users.jyu.fi~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
   </p>
     <div class=img>
-        <img src="{{ url_for('replot') }}" height="100%" width="100%" alt="Big Boat"> 
+        <img src="{{ url_for('replot') }}" height="80%" width="100%" alt="Big Boat"> 
     </div>
     
-    <button type="button" onclick="alert('This will be a computation \n for simulating jumps')">Click Me!</button>
-  {% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
-  {% endfor %}
-  {% block body %}{% endblock %}
-</div>
 {% block content %}
 <h1>Data selected</h1>
 <form method="POST" action="/">
@@ -121,8 +116,6 @@ completed_template = """
     <div>{{ form.landdrop.label }} {{ form.landdrop() }} {{ form.landdrop.data }}</div>
     <button type="submit" class="btn">Submit</button>    
 </form>
-
-
 {% endblock %}
 
 """
@@ -141,7 +134,7 @@ def init():
     app.kode=app.ir.takeoff2()
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
     app.alast=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir.sx[app.kode],takesy=app.ir.sy[app.kode])
-    app.osuma=app.alast.osu(app.lent)
+    app.osuma=inter.osuma(app.lent,app.alast)
 
 @app.route("/", methods=['GET','POST'])
 def simple():
@@ -185,7 +178,7 @@ def plot(angle=24., ylengthstr=24., radius=20., flat=4,takeoffAngle=20.*2.*numpy
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
-    app.osuma=app.alast.osu(app.lent)
+    app.osuma=inter.osuma(app.lent,app.alast)
     print "Osumakohtiaaaa!!"
     print app.osuma
 
