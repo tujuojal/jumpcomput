@@ -57,12 +57,6 @@ template_form = """
         <img src="{{ url_for('plot') }}" height="80%" width="100%" alt="Wait... computing in process..."> 
     </div>
     
-    <button type="button" onclick="alert('This will be a computation \n for simulating jumps')">Click Me!</button>
-  {% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
-  {% endfor %}
-  {% block body %}{% endblock %}
-</div>
 {% block content %}
 <h1>Set the parameters</h1>
 
@@ -230,7 +224,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
-    app.osuma=app.alast.osu(app.lent)
+    app.osuma=inter.osuma(app.lent,app.alast)
 	
     print "Osumakohtiaaaa!!"
     print app.osuma
@@ -241,7 +235,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     xs = app.lent.sx
     ys = app.lent.sy
 
-    app.axis.plot(xs[:desistep], ys[:desistep],color="red",linewidth=2,label="flightpath")
+    app.axis.plot(xs[:app.osuma], ys[:app.osuma],color="red",linewidth=2,label="flightpath")
     app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
     app.axis.plot(app.alast.xx, app.alast.yy, color="black" , linewidth=1, label = "kicker")
 #    app.axis.fill_between(app.ir.sx[:app.kode], -40, app.ir.sy[:app.kode], color="black" )
