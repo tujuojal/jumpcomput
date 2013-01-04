@@ -16,5 +16,5 @@ def osuma(lento,alastulo):
     for val in range(len(lento.sy)):
         if lento.sy[val]<p2(lento.sx[val]):
             print "ONNISTUU!!:"
-            return i
+            return val
     return len(lento.sx)

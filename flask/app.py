@@ -128,7 +128,7 @@ def init():
     app.kode=app.ir.takeoff2()
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
     app.alast=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir.sx[app.kode],takesy=app.ir.sy[app.kode])
-    app.osuma=inter.osuma(app.lent,app.alast)
+    app.osuma=50#inter.osuma(app.lent,app.alast)
 
 @app.route("/", methods=['GET','POST'])
 def simple():
@@ -172,7 +172,7 @@ def plot(angle=24., ylengthstr=24., radius=20., flat=4,takeoffAngle=20.*2.*numpy
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
-    app.osuma=inter.osuma(app.lent,app.alast)
+    app.osuma=50 #inter.osuma(app.lent,app.alast)
     print "Osumakohtiaaaa!!"
     print app.osuma
 
@@ -224,7 +224,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
 
     app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
-    app.osuma=inter.osuma(app.lent,app.alast)
+    app.osuma=50 # inter.osuma(app.lent,app.alast)
 	
     print "Osumakohtiaaaa!!"
     print app.osuma

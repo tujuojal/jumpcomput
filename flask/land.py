@@ -3,12 +3,15 @@
 
 from scipy import *
 import pylab
+import numpy
 
 class Land:
     def __init__(self,takeheight=1,length=10,landangle=30,landheight=10,takesx=0,takesy=0):
         """
         muodestetaan simppeli geometria hyppyrille
         """
+        self.yy=numpy.zeros(3)
+        self.xx=numpy.zeros(3)	
         self.yy=[takesy-takeheight,takesy-takeheight,takesy-takeheight-landheight]
         self.xx=[takesx,takesx+length,takesx+length+landheight/tan(landangle*pi*2./360.)]
 
