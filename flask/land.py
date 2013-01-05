@@ -12,8 +12,12 @@ class Land:
         """
         self.yy=numpy.zeros(3)
         self.xx=numpy.zeros(3)	
-        self.yy=[takesy-takeheight,takesy-takeheight,takesy-takeheight-landheight]
-        self.xx=[takesx,takesx+length,takesx+length+landheight/tan(landangle*pi*2./360.)]
+        self.yy[0]=takesy-takeheight
+        self.yy[1]=takesy-takeheight
+        self.yy[2]=takesy-takeheight-landheight
+        self.xx[0]=takesx
+        self.xx[1]=takesx+length
+        self.xx[2]=takesx+length+landheight/tan(landangle*pi*2./360.)
 
     def osu(self,lento):
         """
@@ -33,5 +37,9 @@ class Land:
         return -1
 
     def reset(self,takeheight=1,length=10,landangle=30,landheight=10,takesx=0,takesy=0):
-        self.yy=[takesy-takeheight,takesy-takeheight,takesy-takeheight-landheight]
-        self.xx=[takesx,takesx+length,takesx+length+landheight/tan(landangle*pi*2./360.)]
+        self.yy[0]=takesy-takeheight
+        self.yy[1]=takesy-takeheight
+        self.yy[2]=takesy-takeheight-landheight
+        self.xx[0]=takesx
+        self.xx[1]=takesx+length
+        self.xx[2]=takesx+length+landheight/tan(landangle*pi*2./360.)

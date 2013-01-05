@@ -18,6 +18,15 @@ import inrun3
 import land
 import inter
 
+# all the imports
+import sqlite3
+from flask import Flask, request, session, g, redirect, url_for, \
+     abort, render_template, flash
+from __future__ import with_statement
+from contextlib import closing
+
+
+
 from flask import Flask, make_response, render_template_string, url_for, request
 from wtforms import Form, SelectMultipleField, DecimalField, FloatField
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -39,6 +48,14 @@ class Data(Form):
     landangle = FloatField('Angle of landing', default = 24)
     landheight = FloatField('Height of landing', default =20)
     landdrop = FloatField('Drop from takeof', default = 1)
+
+
+# configuration
+DATABASE = '/tmp/flaskr.db'
+DEBUG = True
+SECRET_KEY = 'development key'
+USERNAME = 'admin'
+PASSWORD = 'default'
 
 ###########################################################
 ## Templates for the html as filled and so ##
@@ -120,9 +137,20 @@ completed_template = """
 ###########################################
 
 app = Flask(__name__)
+app.config.from_object(__name__)
+
+def connect_db():
+    return sqlite3.connect(app.config['DATABASE'])
+
+def init_db():
+    with closing(connect_db()) as db:
+        with app.open_resource('schema.sql') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
 
 def init():
     """"initializing the computations and calling the template"""
+    init_db()
     app.ir=inrun3.Inrun()
     app.ir.inrun()
     app.kode=app.ir.takeoff2()
