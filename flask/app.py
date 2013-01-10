@@ -14,7 +14,7 @@ import random
 import StringIO
 import numpy
 import lento2
-import inrun3
+import inrun4
 import land
 import inter
 
@@ -28,7 +28,8 @@ from matplotlib.figure import Figure
 ############################################################
 
 class Data(Form):
-    radius = FloatField('Radius of tranny',default=20)
+    radius = FloatField('Radius of tranny',default=25)
+    radius2 = FloatField('Radius of tranny nr2',default=20)
     angle = FloatField('Angle of inrun',default=24)
     takeangle = FloatField('Angle of takeof',default=20)
     flat = FloatField('Length of inrun-flat',default=5)
@@ -62,6 +63,7 @@ template_form = """
 
 <form method="POST" action="/">
     <div>{{ form.radius.label }} {{ form.radius() }}</div>
+    <div>{{ form.radius2.label }} {{ form.radius2() }}</div>
     <div>{{ form.angle.label }} {{ form.angle() }}</div>
     <div>{{ form.flat.label }} {{ form.flat() }} </div>
     <div>{{ form.height.label }} {{ form.height() }} </div>
@@ -98,6 +100,7 @@ completed_template = """
 <h1>Data selected</h1>
 <form method="POST" action="/">
     <div>{{ form.radius.label }} {{ form.radius() }} {{ form.radius.data }}</div>
+    <div>{{ form.radius2.label }} {{ form.radius2() }} {{ form.radius2.data }}</div>
     <div>{{ form.angle.label }} {{ form.angle() }} {{ form.angle.data }}</div>
     <div>{{ form.takeangle.label }} {{ form.takeangle() }} {{ form.takeangle.data }}</div>
     <div>{{ form.flat.label }} {{ form.flat() }} {{ form.flat.data }}</div>
@@ -123,7 +126,7 @@ app = Flask(__name__)
 
 def init():
     """"initializing the computations and calling the template"""
-    app.ir=inrun3.Inrun()
+    app.ir=inrun4.Inrun()
     app.ir.inrun()
     app.kode=app.ir.takeoff2()
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
@@ -148,7 +151,7 @@ def simple():
 ##################################################
 
 @app.route('/plot.png')
-def plot(angle=24., ylengthstr=24., radius=20., flat=4,takeoffAngle=20.*2.*numpy.pi/360., takeoffHeight=4.):
+def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle=20.*2.*numpy.pi/360., takeoffHeight=4.):
     app.fig = Figure()
     app.axis = app.fig.add_subplot(1, 1, 1)
     
@@ -157,6 +160,7 @@ def plot(angle=24., ylengthstr=24., radius=20., flat=4,takeoffAngle=20.*2.*numpy
     app.ir.ylengthstr=ylengthstr
     app.ir.runangle=angle*2.*numpy.pi/360.
     app.ir.radius=radius
+    app.ir.radius2=radius2
     app.ir.flat=flat
     app.ir.takeoffAngle=takeoffAngle
     app.ir.takeoffHeight=takeoffHeight
@@ -209,6 +213,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     app.ir.ylengthstr=app.form.height.data
     app.ir.runangle=app.form.angle.data*2.*numpy.pi/360.
     app.ir.radius=app.form.radius.data
+    app.ir.radius2=app.form.radius2.data
     app.ir.flat=app.form.flat.data
     app.ir.takeoffAngle=app.form.takeangle.data*2.*numpy.pi/360.
     app.ir.takeoffHeight=app.form.takeheight.data
