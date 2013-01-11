@@ -28,6 +28,7 @@ from matplotlib.figure import Figure
 ############################################################
 
 class Data(Form):
+    friction = FloatField('Friction coeff (0.02-0.06 maybe?)',default=0.05)
     radius = FloatField('Radius of tranny',default=25)
     radius2 = FloatField('Radius of tranny nr2',default=20)
     angle = FloatField('Angle of inrun',default=24)
@@ -62,6 +63,7 @@ template_form = """
 <h1>Set the parameters</h1>
 
 <form method="POST" action="/">
+    <div>{{ form.friction.label }} {{ form.friction() }}</div>
     <div>{{ form.radius.label }} {{ form.radius() }}</div>
     <div>{{ form.radius2.label }} {{ form.radius2() }}</div>
     <div>{{ form.angle.label }} {{ form.angle() }}</div>
@@ -99,6 +101,7 @@ completed_template = """
 {% block content %}
 <h1>Data selected</h1>
 <form method="POST" action="/">
+    <div>{{ form.friction.label }} {{ form.friction() }} {{ form.friction.data }}</div>
     <div>{{ form.radius.label }} {{ form.radius() }} {{ form.radius.data }}</div>
     <div>{{ form.radius2.label }} {{ form.radius2() }} {{ form.radius2.data }}</div>
     <div>{{ form.angle.label }} {{ form.angle() }} {{ form.angle.data }}</div>
@@ -127,6 +130,7 @@ app = Flask(__name__)
 def init():
     """"initializing the computations and calling the template"""
     app.ir=inrun4.Inrun()
+    app.ir.C=0.05
     app.ir.inrun()
     app.kode=app.ir.takeoff2()
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
@@ -210,6 +214,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     app.fig = Figure()
     app.axis = app.fig.add_subplot(1, 1, 1)
 
+    app.ir.C=app.form.friction.data
     app.ir.ylengthstr=app.form.height.data
     app.ir.runangle=app.form.angle.data*2.*numpy.pi/360.
     app.ir.radius=app.form.radius.data
