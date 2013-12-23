@@ -281,7 +281,11 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
     app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
     app.axis.plot(app.alast.xx, app.alast.yy, color="black" , linewidth=1, label = "kicker")
 #    app.axis.fill_between(app.ir.sx[:app.kode], -40, app.ir.sy[:app.kode], color="black" )
-
+"This is the thing to plot colors according the impact:
+cmhot = plt.cm.get_cmap("hot")
+app.axis.scatter(osumax,osumay,c=varikoodi,cmap=cmhot)
+Not quite sure if the above is corect, also inter.py which should 
+compute the impacts is very unproven..."
     app.axis.legend(loc='upper right')
     app.canvas = FigureCanvas(app.fig)
     app.output = StringIO.StringIO()
