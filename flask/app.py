@@ -52,6 +52,11 @@ template_form = """
 <div class=page>
   <h1>Computatio</h1>
   <p> This is a testsite for computations for kickers. Updates are coming.... </p>
+  <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
+  the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the 
+  numerical error when it is big. </p>
+  <p> Airresistance is quadratic wrt speed, coefficient is set to correspond some windtunnel tests for crosscountry 
+  <a href = "http://biomekanikk.nih.no/xchandbook/ski4.html"> skiers! </a> </p>
   <p>See
   <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
   </p>
@@ -71,13 +76,17 @@ template_form = """
     <div>{{ form.height.label }} {{ form.height() }} </div>
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} </div>
     <div>{{ form.takeangle.label }} {{ form.takeangle() }} </div>
-    <div>{{ form.desitime.label }}  </div>
+    <div>{{ form.desitime.label }} {{ form.desitime.data }} </div>
     <div>{{ form.landlength.label }} {{ form.landlength() }} </div>
     <div>{{ form.landangle.label }} {{ form.landangle() }} </div>
     <div>{{ form.landheight.label }} {{ form.landheight() }} </div>
     <div>{{ form.landdrop.label }} {{ form.landdrop() }} </div>
     <button type="submit" class="btn">Submit</button>    
 </form>
+<form method="GET" action="/">
+    <p> form.desitime.data </p>
+</form>
+    
 {% endblock %}
 """
 
@@ -91,6 +100,11 @@ completed_template = """
 <div class=page>
   <h1>Computatio</h1>
   <p> This is a testsite for computations for kickers. Updates are coming.... </p>
+  <P> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
+  the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the 
+  numerical error when it is big. </p>
+  <p> Airreisistance is quadratic wrt speed, coefficient is set to correspond some windtunnel tests for crosscountry 
+  <a href = "http://biomekanikk.nih.no/xchandbook/ski4.html"> skiers! </a> </p>
   <p>See
   <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
   </p>
@@ -109,14 +123,16 @@ completed_template = """
     <div>{{ form.flat.label }} {{ form.flat() }} {{ form.flat.data }}</div>
     <div>{{ form.height.label }} {{ form.height() }} {{ form.height.data }}</div>
     <div>{{ form.takeheight.label }} {{ form.takeheight() }} {{ form.takeheight.data }}</div>
-    <div>{{ form.desitime.label }}  </div>
+    <div>{{ form.desitime.label }}  {{ form.desitime.data }}</div>
     <div>{{ form.landlength.label }} {{ form.landlength() }} {{ form.landlength.data }}</div>
     <div>{{ form.landangle.label }} {{ form.landangle() }} {{ form.landangle.data }}</div>
     <div>{{ form.landheight.label }} {{ form.landheight() }} {{ form.landheight.data }}</div>
     <div>{{ form.landdrop.label }} {{ form.landdrop() }} {{ form.landdrop.data }}</div>
     <button type="submit" class="btn">Submit</button>    
+    <p>One more data.. hangtime:form.desitime.data</p>
 </form>
 {% endblock %}
+
 
 """
 
@@ -136,6 +152,9 @@ def init():
     app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
     app.alast=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir.sx[app.kode],takesy=app.ir.sy[app.kode])
     app.osuma=inter.osuma(app.lent,app.alast)
+    #app.form.desitime.data=app.
+    print app.lent.t[app.osuma]
+    print "osuma-aika"
 
 @app.route("/", methods=['GET','POST'])
 def simple():
@@ -183,12 +202,12 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
     app.osuma=inter.osuma(app.lent,app.alast)
     print "Osumakohtiaaaa!!"
     print app.osuma
+    app.form.desitime.data=app.lent.t[app.osuma]
+    print app.form.desitime.data
 
-	
 # there is time 4.5sec in lento2 
 # dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
 # by default desiredtime =2
-    desistep=int(2/app.lent.dt)
     xs = app.lent.sx
     ys = app.lent.sy
 
@@ -236,12 +255,13 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
     app.osuma=inter.osuma(app.lent,app.alast)
 	
-    print "Osumakohtiaaaa!!"
-    print app.osuma
-# there is time 4.5sec in lento2 
+    print "Hang time hang time...!!"
+    print app.osuma 
+    app.form.desitime.data=app.lent.t[app.osuma]
+    
+    # there is time 4.5sec in lento2 
 # dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
 # by default desiredtime =2
-    desistep=int(app.form.desitime.data/app.lent.dt)
     xs = app.lent.sx
     ys = app.lent.sy
 
