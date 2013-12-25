@@ -19,7 +19,7 @@ def osuma(lento,alastulo):
             return val
     return len(lento.sx)
 
-def osumavoima(osumakohta,lento,alastulo)
+def osumavoima(osumakohta,lento,alastulo):
     xx2=np.array(alastulo.xx,dtype=float)
     yy2=np.array(alastulo.yy,dtype=float)
     p2=interpolate.PiecewisePolynomial(xx2,yy2[:,np.newaxis])
