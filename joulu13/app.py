@@ -108,7 +108,7 @@ completed_template = """
   <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
   the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the
   numerical error when it is big. </p>
-  <p> Airreisistance is quadratic wrt speed, coefficient is set to correspond some windtunnel tests for crosscountry
+  <p> Airresistance is quadratic wrt speed, coefficient is set to correspond some windtunnel tests for crosscountry
   <a href = "http://biomekanikk.nih.no/xchandbook/ski4.html"> skiers! </a> </p>
   <p>See
   <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
@@ -176,6 +176,7 @@ def init():
     app.lent2.A=app.lent2.D/app.lent2.m
     app.alast2=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir2.sx[app.kode2],takesy=app.ir2.sy[app.kode2])
     app.osuma2=inter.osuma(app.lent2,app.alast2)
+
 @app.route("/", methods=['GET','POST'])
 def simple():
     app.form = Data(request.form)
@@ -233,6 +234,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
     
 # This is the other step of the loop, with added friction and airdrag...
 
+    scatterlist=[[]] #this is empty list that will get added within the loop
     for i in app.lista:
         app.ir2.ylengthstr=ylengthstr
         app.ir2.runangle=angle*2.*numpy.pi/360.
@@ -270,13 +272,13 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
 # by default desiredtime =2
         xs2 = app.lent2.sx
         ys2 = app.lent2.sy
-# here just plot things, do not compute anything anymore, needed things:
-# xs and ys as a list of different paths
-# app.ir.sx and app.ir.sy as just the major inrun
-# app.alast.xx and ap.alast.yy as the landing
 # loop should go through the number of flightpaths
-        app.axis.plot(xs2[:app.osuma2], ys2[:app.osuma2],color="red",linewidth=1)
-    app.axis.scatter(xs[app.osuma],ys[app.osuma],s=10,c="red")
+        colorcode=inter.osumavoima(app.osuma2,app.lent2,app.alast2)
+        scatterlist.append([xs2[app.osuma2],ys2[app.osuma2],colorcode])
+       # app.axis.plot(xs2[:app.osuma2], ys2[:app.osuma2],color="red",linewidth=1)
+    colorcode=inter.osumavoima(app.osuma,app.lent,app.alast)
+    scatterlist.append([xs[app.osuma],ys[app.osuma],colorcode])
+    app.axis.scatter(scatterlist[1],scatterlist[2],s=10,c=scatterlist[3])
     app.axis.plot(xs[:app.osuma], ys[:app.osuma],color="red",linewidth=2,label="flightpath")
     app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
     app.axis.plot(app.alast.xx, app.alast.yy, color="black" , linewidth=1, label = "kicker")
