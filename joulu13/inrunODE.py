@@ -20,8 +20,9 @@ class Inrun:
         self.takeoffAngle=takeoffAngle
         self.takeoffHeight=takeoffHeight
 #time steps size, 100seconds / how many steps
-        self.steps=46
-        self.dt=17.0/self.steps
+        self.steps=79
+        self.Time=6.0
+        self.dt=18.0/self.steps
         self.D=.4	#airresistance coefficient, old one
         self.g=9.81	#gravity
         self.m=80	#average mass of rider
@@ -29,15 +30,15 @@ class Inrun:
         self.A=self.D/self.m #airresistant coefficient for accel, mass divided out
 
 
-        self.t=zeros((self.steps,1))
-        self.sx=zeros((self.steps,1))
-        self.sy=zeros((self.steps,1))
-        self.vx=zeros((self.steps,1))
-        self.vy=zeros((self.steps,1))
-        self.ax=zeros((self.steps,1))
-        self.ay=zeros((self.steps,1))
-        self.sx=zeros((self.steps,1))
-        self.sy=zeros((self.steps,1))
+        self.t=numpy.zeros(self.steps)
+        self.sx=numpy.zeros(self.steps)
+        self.sy=numpy.zeros(self.steps)
+        self.vx=numpy.zeros(self.steps)
+        self.vy=numpy.zeros(self.steps)
+        self.ax=numpy.zeros(self.steps)
+        self.ay=numpy.zeros(self.steps)
+        self.sx=numpy.zeros(self.steps)
+        self.sy=numpy.zeros(self.steps)
 #x is position in x-coordinate
 #ylengthstr is height of straight section of inrun (before tranny)
 #runangle is angle of straight section of inrun
@@ -87,7 +88,7 @@ class Inrun:
            	return 1./self.radius
 
 
-
+#this is not used since ratkaise() function below
     def inrun(self):
         """
         kalku=angle of speed at beginning
@@ -117,19 +118,19 @@ class Inrun:
 
 #forward stepping solution with finite differences for speed
         for i in range(len(self.t)-1):
-            rk=self.rinnekulma(self.sx[i,0])
-            self.t[i+1,0]=self.t[i,0]+self.dt
-            self.ax[i+1,0]=-sqrt(self.vx[i,0]**2+self.vy[i,0]**2)*self.vx[i,0]*self.A+self.g*cos(rk)*sin(rk)-self.g*self.C*cos(rk)*cos(rk)+sin(rk)*(self.vx[i,0]**2+self.vy[i,0]**2)*self.invradius(self.sx[i,0])-cos(rk)*self.C*(self.vx[i,0]**2+self.vy[i,0]**2)*self.invradius(self.sx[i,0])
-            self.ay[i+1,0]=-self.g-sqrt(self.vy[i,0]**2+self.vx[i,0]**2)*self.vy[i,0]*self.A + self.g*cos(rk)*cos(rk)+self.g*self.C*cos(rk)*sin(rk)+cos(rk)*(self.vx[i,0]**2+self.vy[i,0]**2)*self.invradius(self.sx[i,0])+sin(rk)*self.C*(self.vx[i,0]**2+self.vy[i,0]**2)*self.invradius(self.sx[i,0])
-            self.vx[i+1,0]=self.dt*self.ax[i+1,0]+self.vx[i,0]
+            rk=self.rinnekulma(self.sx[i])
+            self.t[i+1]=self.t[i]+self.dt
+            self.ax[i+1]=-sqrt(self.vx[i]**2+self.vy[i]**2)*self.vx[i]*self.A+self.g*cos(rk)*sin(rk)-self.g*self.C*cos(rk)*cos(rk)+sin(rk)*(self.vx[i]**2+self.vy[i]**2)*self.invradius(self.sx[i])-cos(rk)*self.C*(self.vx[i]**2+self.vy[i]**2)*self.invradius(self.sx[i])
+            self.ay[i+1]=-self.g-sqrt(self.vy[i]**2+self.vx[i]**2)*self.vy[i]*self.A + self.g*cos(rk)*cos(rk)+self.g*self.C*cos(rk)*sin(rk)+cos(rk)*(self.vx[i]**2+self.vy[i]**2)*self.invradius(self.sx[i])+sin(rk)*self.C*(self.vx[i]**2+self.vy[i]**2)*self.invradius(self.sx[i])
+            self.vx[i+1]=self.dt*self.ax[i+1]+self.vx[i]
 
-            self.vy[i+1,0]=self.dt*self.ay[i+1,0]+self.vy[i,0]
-            self.sx[i+1,0]=self.dt*self.vx[i+1,0]+self.sx[i,0]
-            self.sy[i+1,0]=self.dt*self.vy[i+1,0]+self.sy[i,0]
+            self.vy[i+1]=self.dt*self.ay[i+1]+self.vy[i]
+            self.sx[i+1]=self.dt*self.vx[i+1]+self.sx[i]
+            self.sy[i+1]=self.dt*self.vy[i+1]+self.sy[i]
             if rk==0 and check==0:
                 check=1
                 print "Y-height at the bottom:"
-                print self.sy[i,0]
+                print self.sy[i]
 
 #this is the right hand side function for vector ode du/dt = f(u,t), where u=[vx,vy,sx,sy]
     def f(self,u,time):
@@ -141,29 +142,13 @@ class Inrun:
         ret_4 = vy
         return [ret_1,ret_2,ret_3,ret_4]
 
-#this is pendolum eq just as a testversion
-    def dx(self,x, t):
-        g = 9.82
-        L = 0.5
-        m = 0.1
-        """
-        The right-hand side of the pendulum ODE
-        """
-        x1, x2, x3, x4 = x[0], x[1], x[2], x[3]
-        
-        dx1 = 6.0/(m*L**2) * (2 * x3 - 3 * cos(x1-x2) * x4)/(16 - 9 * cos(x1-x2)**2)
-        dx2 = 6.0/(m*L**2) * (8 * x4 - 3 * cos(x1-x2) * x3)/(16 - 9 * cos(x1-x2)**2)
-        dx3 = -0.5 * m * L**2 * ( dx1 * dx2 * sin(x1-x2) + 3 * (g/L) * sin(x1))
-        dx4 = -0.5 * m * L**2 * (-dx1 * dx2 * sin(x1-x2) + (g/L) * sin(x2))
-        
-        return [dx1, dx2, dx3, dx4]
-
 
 #this uses scipy.integrate to solve the above ode
     def ratkaise(self):
-        tt = pylab.linspace(0,5,num=3,endpoint=False)
+        tt = pylab.linspace(0,self.Time,num=self.steps,endpoint=False)
         alkuarvot=[0, 0, 0, 0] #this says startposition and speed are 0
         u = integrate.odeint(self.f,alkuarvot,tt)
+        self.vx,self.vy,self.sx,self.sy = u.T #after this inrun() does not work
         return u
 
 
@@ -184,45 +169,52 @@ class Inrun:
 
         """
         kode=1
-        while self.rinnekulma(self.sx[kode,0])>-self.takeoffAngle and kode+10<self.steps:
+        while self.rinnekulma(self.sx[kode])>-self.takeoffAngle and kode+10<self.steps:
             kode=kode+1
-            if self.sy[kode,0]+self.ylengthstr+(self.radius-cos(self.runangle)*self.radius)>self.takeoffHeight and self.rinnekulma(self.sx[kode,0])<0:
+            if self.sy[kode]+self.ylengthstr+(self.radius-cos(self.runangle)*self.radius)>self.takeoffHeight and self.rinnekulma(self.sx[kode])<0:
                 print "Warniiing!!, takeofHeight reached, but angle not!!! fix your parameters stupid!! \n Angle now:"
-                trueAngle=arctan2(self.sy[kode,0]-self.sy[kode-1,0],self.sx[kode,0]-self.sx[kode-1,0])*360./2./pi
+                trueAngle=arctan2(self.sy[kode]-self.sy[kode-1],self.sx[kode]-self.sx[kode-1])*360./2./pi
                 print trueAngle
                 break
             if kode==self.steps-1:
                 print "Warning warning, timesteps not reaching takeoff!!"
-        while self.sy[kode,0]+self.ylengthstr+(self.radius-cos(self.runangle)*self.radius)<self.takeoffHeight:
+                self.Time= self.Time + 3
+                self.ratkaise()
+                sel.takeoff2()
+        while self.sy[kode]+self.ylengthstr+(self.radius-cos(self.runangle)*self.radius)<self.takeoffHeight:
             print "angle ok, reaching for height!!"
+#add here a check for speed!!! If speed is too small, it means the inrun will not give enough speed to reach the takeoff!!
             kode=kode+1
             if kode>=self.steps-1:
                 print "Warning warning, timesteps reached max, fix inrun2.py!!"
+                self.Time= self.Time + 3
+                self.ratkaise()
+                self.takeoff2()
                 break
 #print kode
 #print "--maximum--"
 #print steps
         print "Y-height at the takeoff:"
-        print self.sy[kode,0]
+        print self.sy[kode]
 
-        startAngleTrue=arctan2(self.sy[30,0]-self.sy[29,0],self.sx[30,0]-self.sx[29,0])*360./2./pi
+        startAngleTrue=arctan2(self.sy[30]-self.sy[29],self.sx[30]-self.sx[29])*360./2./pi
         print "starting angle as computed:"
         print startAngleTrue
 #same with acceleration
-        startAngleTrue=arctan2(self.ay[30,0],self.ax[30,0])*360./2./pi
+        startAngleTrue=arctan2(self.ay[30],self.ax[30])*360./2./pi
         print "starting angle as computed by acceleration:"
         print startAngleTrue
-        trueAngle=arctan2(self.sy[kode,0]-self.sy[kode-1,0],self.sx[kode,0]-self.sx[kode-1,0])*360./2./pi
+        trueAngle=arctan2(self.sy[kode]-self.sy[kode-1],self.sx[kode]-self.sx[kode-1])*360./2./pi
         print "takeoffAngle now:"
         print trueAngle
 #same with acceleration
-        trueAngle=arctan2(self.vy[kode,0],self.vx[kode,0])*360./2./pi
+        trueAngle=arctan2(self.vy[kode],self.vx[kode])*360./2./pi
         print "takeoffAngle now by speed:"
         print trueAngle
         print "Testing Testing"
 
-#	pylab.plot(self.vx[kode,0],self.vy[kode,0],'o')
-#	pylab.plot(self.vx[kode-1,0],self.vy[kode-1,0],'o')
+#	pylab.plot(self.vx[kode],self.vy[kode],'o')
+#	pylab.plot(self.vx[kode-1],self.vy[kode-1],'o')
         return kode
 
 
@@ -244,11 +236,11 @@ if __name__ == '__main__':
 #print (ylengthstr/tan(runangle)+radius*sin(runangle))+flat
 #print [vxloppu,vyloppu]
 #print sqrt(vxloppu**2+vyloppu**2)
-    pylab.plot(inr.sx[kode,0],inr.sy[kode,0],'o')
-    sxloppu=inr.sx[kode,0]
-    syloppu=inr.sy[kode,0]
-    vxloppu=inr.vx[kode,0]
-    vyloppu=inr.vy[kode,0]
+    pylab.plot(inr.sx[kode],inr.sy[kode],'o')
+    sxloppu=inr.sx[kode]
+    syloppu=inr.sy[kode]
+    vxloppu=inr.vx[kode]
+    vyloppu=inr.vy[kode]
     pylab.plot([sxloppu,sxloppu+19,sxloppu+19+tan(35.*2.*pi/360.)*16.],[syloppu-4,syloppu-4,syloppu-4-16])
     lent=lento2.Lento(sxloppu,syloppu,vxloppu,vyloppu)
     pylab.plot(lent.sx,lent.sy)
@@ -256,5 +248,5 @@ if __name__ == '__main__':
     pylab.show()
 ##	#print ax
 ##	#for i in range(len(t)-1):
-##	#	print rinnekulma(sx[i,0])
-#		#print arctan2(vy[i,0],vx[i,0])*360./2./pi
+##	#	print rinnekulma(sx[i])
+#		#print arctan2(vy[i],vx[i])*360./2./pi
