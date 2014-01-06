@@ -21,7 +21,7 @@ class Inrun:
         self.takeoffHeight=takeoffHeight
 #time steps size, 100seconds / how many steps
         self.steps=79
-        self.Time=6.0
+        self.Time=16.0
         self.dt=18.0/self.steps
         self.D=.4	#airresistance coefficient, old one
         self.g=9.81	#gravity

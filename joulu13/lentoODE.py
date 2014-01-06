@@ -9,7 +9,7 @@ class Lento:
     def __init__(self,sxalku=0,syalku=0,vxalku=7,vyalku=5):
         #lasketaan lentorata
         #time steps size, 100seconds / how many steps
-        self.steps=50
+        self.steps=60
         self.Time = 4.5
         self.dt = self.Time/self.steps
         #constants
@@ -65,7 +65,7 @@ class Lento:
             self.sy[i+1]=self.dt*self.vy[i+1]+self.sy[i]
 
     def f(self,u,time):
-        vx,vy,sx,sy=u
+        vx,vy,sx,sy  = u
         ret_1 = -sqrt(vx**2+vy**2)*vx*self.A
         ret_2 = -self.g - sqrt(vy**2+vx**2)*vy*self.A
         ret_3 = vx
@@ -74,7 +74,7 @@ class Lento:
 
     def ratkaise(self,sxalku=0,syalku=0,vxalku=7,vyalku=5):
         tt = pylab.linspace(0,self.Time,num=self.steps,endpoint=False)
-        alkuarvot=[sxalku,syalku,vxalku,vyalku] #this says startposition and speed are according
+        alkuarvot=[vxalku,vyalku,sxalku,syalku] #this says startposition and speed are according
         u = integrate.odeint(self.f,alkuarvot,tt)
         self.vx,self.vy,self.sx,self.sy = u.T 
         return u

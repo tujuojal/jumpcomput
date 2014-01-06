@@ -16,8 +16,8 @@ def osuma(lento,alastulo):
     for val in range(len(lento.sy)):
         if lento.sy[val]<p2(lento.sx[val]):
             print "ONNISTUU!!:"
-            return val
-    return len(lento.sx)
+            return val-1
+    return len(lento.sx)-1
 
 def osumavoima(osumakohta,lento,alastulo):
     xx2=np.array(alastulo.xx,dtype=float)

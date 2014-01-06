@@ -13,8 +13,8 @@
 import random
 import StringIO
 import numpy
-import lento2
-import inrun4
+import lentoODE
+import inrunODE
 import land
 import inter
 
@@ -148,13 +148,13 @@ app = Flask(__name__)
 
 def init():
     """"initializing the computations and calling the template"""
-    app.ir=inrun4.Inrun()
+    app.ir=inrunODE.Inrun()
     app.ir.C=0.05
     app.ir.D=0.4
     app.ir.A=app.ir.D/app.ir.m
-    app.ir.inrun()
+    app.ir.ratkaise()
     app.kode=app.ir.takeoff2()
-    app.lent=lento2.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
+    app.lent=lentoODE.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir.vx[app.kode],app.ir.vy[app.kode])
     app.lent.D=0.4
     app.lent.A=app.lent.D/app.lent.m
     app.alast=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir.sx[app.kode],takesy=app.ir.sy[app.kode])
@@ -165,13 +165,13 @@ def init():
 
     """"initializing the computations for smaller speed and calling the template"""
     app.lista=[0.9,0.966,1.033,1.1]
-    app.ir2=inrun4.Inrun()
+    app.ir2=inrunODE.Inrun()
     app.ir2.C=0.05
     app.ir2.D=0.4
     app.ir2.A=app.ir2.D/app.ir2.m
-    app.ir2.inrun()
+    app.ir2.ratkaise()
     app.kode2=app.ir2.takeoff2()
-    app.lent2=lento2.Lento(app.ir2.sx[app.kode],app.ir2.sy[app.kode],app.ir2.vx[app.kode],app.ir2.vy[app.kode])
+    app.lent2=lentoODE.Lento(app.ir2.sx[app.kode],app.ir2.sy[app.kode],app.ir2.vx[app.kode],app.ir2.vy[app.kode])
     app.lent2.D=0.4
     app.lent2.A=app.lent2.D/app.lent2.m
     app.alast2=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir2.sx[app.kode2],takesy=app.ir2.sy[app.kode2])
@@ -210,7 +210,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
     app.ir.takeoffHeight=takeoffHeight
 
 
-    app.ir.inrun()
+    app.ir.ratkaise()
     app.kode=app.ir.takeoff2()
 
     sxloppu=app.ir.sx[app.kode]
@@ -218,7 +218,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
     vxloppu=app.ir.vx[app.kode]
     vyloppu=app.ir.vy[app.kode]
 
-    app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
+    app.lent.ratkaise(sxloppu,syloppu,vxloppu,vyloppu)
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
     app.osuma=inter.osuma(app.lent,app.alast)
     print "Osumakohtiaaaa!!"
@@ -226,7 +226,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
     app.form.desitime.data=app.lent.t[app.osuma]
     print app.form.desitime.data
 
-# there is time 4.5sec in lento2
+# there is time 4.5sec in lentoODE
 # dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
 # by default desiredtime =2
     xs = app.lent.sx
@@ -248,7 +248,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
         app.ir2.D=0.4*i
         app.ir2.A=app.ir2.D/app.ir2.m
 
-        app.ir2.inrun()
+        app.ir2.ratkaise()
         app.kode2=app.ir2.takeoff2()
 
         app.lent2.D=0.4*i
@@ -259,7 +259,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
         vx2loppu=app.ir2.vx[app.kode2]
         vy2loppu=app.ir2.vy[app.kode2]
 
-        app.lent2.laske(sx2loppu,sy2loppu,vx2loppu,vy2loppu)
+        app.lent2.ratkaise(sx2loppu,sy2loppu,vx2loppu,vy2loppu)
         app.alast2.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sx2loppu,sy2loppu)
         app.osuma2=inter.osuma(app.lent2,app.alast2)
         print "Osumakohtiaaaa!!"
@@ -267,18 +267,18 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
         app.form.desitime.data=app.lent2.t[app.osuma]
         print app.form.desitime.data
 
-# there is time 4.5sec in lento2
+# there is time 4.5sec in lentoODE
 # dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
 # by default desiredtime =2
         xs2 = app.lent2.sx
         ys2 = app.lent2.sy
 # loop should go through the number of flightpaths
-        colorcode=inter.osumavoima(app.osuma2,app.lent2,app.alast2)
-        scatterlist.append([xs2[app.osuma2],ys2[app.osuma2],colorcode])
+       # colorcode=inter.osumavoima(app.osuma2,app.lent2,app.alast2)
+       # scatterlist.append([xs2[app.osuma2],ys2[app.osuma2],colorcode])
        # app.axis.plot(xs2[:app.osuma2], ys2[:app.osuma2],color="red",linewidth=1)
-    colorcode=inter.osumavoima(app.osuma,app.lent,app.alast)
-    scatterlist.append([xs[app.osuma],ys[app.osuma],colorcode])
-    app.axis.scatter(scatterlist[1],scatterlist[2],s=10,c=scatterlist[3])
+   # colorcode=inter.osumavoima(app.osuma,app.lent,app.alast)
+   # scatterlist.append([xs[app.osuma],ys[app.osuma],colorcode])
+   # app.axis.scatter(scatterlist[1],scatterlist[2],s=10,c=scatterlist[3])
     app.axis.plot(xs[:app.osuma], ys[:app.osuma],color="red",linewidth=2,label="flightpath")
     app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
     app.axis.plot(app.alast.xx, app.alast.yy, color="black" , linewidth=1, label = "kicker")
@@ -318,7 +318,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     app.ir.takeoffHeight=app.form.takeheight.data
 
 
-    app.ir.inrun()
+    app.ir.ratkaise()
     app.kode=app.ir.takeoff2()
 
     sxloppu=app.ir.sx[app.kode]
@@ -326,7 +326,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     vxloppu=app.ir.vx[app.kode]
     vyloppu=app.ir.vy[app.kode]
 
-    app.lent.laske(sxloppu,syloppu,vxloppu,vyloppu)
+    app.lent.ratkaise(sxloppu,syloppu,vxloppu,vyloppu)
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
     app.osuma=inter.osuma(app.lent,app.alast)
 
@@ -334,7 +334,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     print app.osuma
     app.form.desitime.data=app.lent.t[app.osuma]
 
-    # there is time 4.5sec in lento2
+    # there is time 4.5sec in lentoODE
 # dt is the size of timestep so to reach desiredtime go to step desiredtime/dt
 # by default desiredtime =2
     xs = app.lent.sx
@@ -359,7 +359,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
         app.ir2.D=app.form.airdrag.data*i
         app.ir2.A=app.ir2.D/app.ir2.m
 
-        app.ir2.inrun()
+        app.ir2.ratkaise()
         app.kode2=app.ir2.takeoff2()
 
         app.lent2.D=app.form.airdrag.data*i
@@ -370,7 +370,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
         vx2loppu=app.ir2.vx[app.kode2]
         vy2loppu=app.ir2.vy[app.kode2]
 
-        app.lent2.laske(sx2loppu,sy2loppu,vx2loppu,vy2loppu)
+        app.lent2.ratkaise(sx2loppu,sy2loppu,vx2loppu,vy2loppu)
         app.alast2.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sx2loppu,sy2loppu)
         app.osuma2=inter.osuma(app.lent2,app.alast2)
         print "Osumakohtiaaaa!!"
