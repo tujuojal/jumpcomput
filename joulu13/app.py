@@ -164,14 +164,14 @@ def init():
     print "osuma-aika"
 
     """"initializing the computations for smaller speed and calling the template"""
-    app.lista=[0.9,0.966,1.033,1.1]
+    app.lista=[0.9,1.1]
     app.ir2=inrunODE.Inrun()
     app.ir2.C=0.05
     app.ir2.D=0.4
     app.ir2.A=app.ir2.D/app.ir2.m
     app.ir2.ratkaise()
     app.kode2=app.ir2.takeoff2()
-    app.lent2=lentoODE.Lento(app.ir2.sx[app.kode],app.ir2.sy[app.kode],app.ir2.vx[app.kode],app.ir2.vy[app.kode])
+    app.lent2=lentoODE.Lento(app.ir2.sx[app.kode2],app.ir2.sy[app.kode2],app.ir2.vx[app.kode2],app.ir2.vy[app.kode2])
     app.lent2.D=0.4
     app.lent2.A=app.lent2.D/app.lent2.m
     app.alast2=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir2.sx[app.kode2],takesy=app.ir2.sy[app.kode2])
@@ -275,12 +275,12 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
 # loop should go through the number of flightpaths
        # colorcode=inter.osumavoima(app.osuma2,app.lent2,app.alast2)
        # scatterlist.append([xs2[app.osuma2],ys2[app.osuma2],colorcode])
-       # app.axis.plot(xs2[:app.osuma2], ys2[:app.osuma2],color="red",linewidth=1)
+        app.axis.plot(xs2[:app.osuma2+1], ys2[:app.osuma2+1],color="green",linewidth=1)
    # colorcode=inter.osumavoima(app.osuma,app.lent,app.alast)
    # scatterlist.append([xs[app.osuma],ys[app.osuma],colorcode])
    # app.axis.scatter(scatterlist[1],scatterlist[2],s=10,c=scatterlist[3])
-    app.axis.plot(xs[:app.osuma], ys[:app.osuma],color="red",linewidth=2,label="flightpath")
-    app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
+    app.axis.plot(xs[:app.osuma+1], ys[:app.osuma+1],color="red",linewidth=2,label="flightpath")
+    app.axis.plot(app.ir.sx[:app.kode+1], app.ir.sy[:app.kode+1], color="black" , linewidth=1, label = "kicker")
     app.axis.plot(app.alast.xx, app.alast.yy, color="black" , linewidth=1, label = "kicker")
 #    app.axis.fill_between(app.ir.sx[:app.kode], -40, app.ir.sy[:app.kode], color="black" )
 #This is the thing to plot colors according the impact:
@@ -340,8 +340,8 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
     xs = app.lent.sx
     ys = app.lent.sy
 
-    app.axis.plot(xs[:app.osuma], ys[:app.osuma],color="red",linewidth=2,label="flightpath")
-    app.axis.plot(app.ir.sx[:app.kode], app.ir.sy[:app.kode], color="black" , linewidth=1, label = "kicker")
+    app.axis.plot(xs[:app.osuma+1], ys[:app.osuma+1],color="red",linewidth=2,label="flightpath")
+    app.axis.plot(app.ir.sx[:app.kode+1], app.ir.sy[:app.kode+1], color="black" , linewidth=1, label = "kicker")
     app.axis.plot(app.alast.xx, app.alast.yy, color="black" , linewidth=1, label = "kicker")
 
 # This is the other step of the loop, with added friction and airdrag...
@@ -375,12 +375,12 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
         app.osuma2=inter.osuma(app.lent2,app.alast2)
         print "Osumakohtiaaaa!!"
         print app.osuma2
-        app.form.desitime.data=app.lent2.t[app.osuma]
+        app.form.desitime.data=app.lent2.t[app.osuma2]
         print app.form.desitime.data
 
         xs2 = app.lent2.sx
         ys2 = app.lent2.sy
-        app.axis.plot(xs2[:app.osuma2], ys2[:app.osuma2],color="red",linewidth=1)
+        app.axis.plot(xs2[:app.osuma2+1], ys2[:app.osuma2+1],color="green",linewidth=1)
 #-------------------------------------------------------------------
 #-------------------------------------------------------------------
     app.axis.legend(loc='upper right')

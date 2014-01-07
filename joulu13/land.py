@@ -17,7 +17,7 @@ class Land:
         self.yy[2]=takesy-takeheight-landheight
         self.xx[0]=takesx
         self.xx[1]=takesx+length
-        self.xx[2]=takesx+length+landheight/tan(landangle*pi*2./360.)
+        self.xx[2]=takesx+length+(landheight)/tan(landangle*pi*2./360.)
 
     def osu(self,lento):
         """

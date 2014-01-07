@@ -20,7 +20,7 @@ class Inrun:
         self.takeoffAngle=takeoffAngle
         self.takeoffHeight=takeoffHeight
 #time steps size, 100seconds / how many steps
-        self.steps=79
+        self.steps=69
         self.Time=16.0
         self.dt=18.0/self.steps
         self.D=.4	#airresistance coefficient, old one
@@ -169,7 +169,7 @@ class Inrun:
 
         """
         kode=1
-        while self.rinnekulma(self.sx[kode])>-self.takeoffAngle and kode+10<self.steps:
+        while self.rinnekulma(self.sx[kode])>-self.takeoffAngle and kode+3<self.steps:
             kode=kode+1
             if self.sy[kode]+self.ylengthstr+(self.radius-cos(self.runangle)*self.radius)>self.takeoffHeight and self.rinnekulma(self.sx[kode])<0:
                 print "Warniiing!!, takeofHeight reached, but angle not!!! fix your parameters stupid!! \n Angle now:"
@@ -186,7 +186,7 @@ class Inrun:
 #add here a check for speed!!! If speed is too small, it means the inrun will not give enough speed to reach the takeoff!!
             kode=kode+1
             if kode>=self.steps-1:
-                print "Warning warning, timesteps reached max, fix inrun2.py!!"
+                print "Warning warning, timesteps reached max, fix inrun2.py, automatically increasing maximum time +3seconds!!"
                 self.Time= self.Time + 3
                 self.ratkaise()
                 self.takeoff2()
