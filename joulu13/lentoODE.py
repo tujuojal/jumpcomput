@@ -9,7 +9,7 @@ class Lento:
     def __init__(self,sxalku=0,syalku=0,vxalku=7,vyalku=5):
         #lasketaan lentorata
         #time steps size, 100seconds / how many steps
-        self.steps=60
+        self.steps=20
         self.Time = 4.5
         self.dt = self.Time/self.steps
         #constants

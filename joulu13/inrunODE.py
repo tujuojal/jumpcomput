@@ -197,13 +197,7 @@ class Inrun:
         print "Y-height at the takeoff:"
         print self.sy[kode]
 
-        startAngleTrue=arctan2(self.sy[30]-self.sy[29],self.sx[30]-self.sx[29])*360./2./pi
-        print "starting angle as computed:"
-        print startAngleTrue
 #same with acceleration
-        startAngleTrue=arctan2(self.ay[30],self.ax[30])*360./2./pi
-        print "starting angle as computed by acceleration:"
-        print startAngleTrue
         trueAngle=arctan2(self.sy[kode]-self.sy[kode-1],self.sx[kode]-self.sx[kode-1])*360./2./pi
         print "takeoffAngle now:"
         print trueAngle

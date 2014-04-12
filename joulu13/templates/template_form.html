@@ -1,0 +1,46 @@
+<!doctype html>
+
+<title>Computatio</title>
+
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>Computatio</h1>
+
+  <p> This is a testsite for computations for kickers. Updates are coming.... </p>
+  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient 
+  up to 10%. Maybe this helps to understand the uncertainty of the result.</p>
+  <p> Apr11/2014 -- Just for a change now, this uses the scipy.integrate.odeint to solve the ode </p> 
+  <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
+  the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the
+  numerical error when it is big. </p>
+  <p> Airresistance is quadratic wrt speed, default coefficient is set to correspond some windtunnel tests for crosscountry
+  <a href = "http://biomekanikk.nih.no/xchandbook/ski4.html"> skiers! </a> </p>
+  <p>See
+  <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
+  </p>
+    <div class=img>
+        <img src="{{ url_for('plot') }}" height="80%" width="100%" alt="Wait... computing in process...">
+    </div>
+
+{% block content %}
+<h1>Set the parameters</h1>
+
+<form method="POST" action="/">
+    <div>{{ form.friction.label }} {{ form.friction() }}</div>
+    <div>{{ form.airdrag.label }} {{ form.airdrag() }}</div>
+    <div>{{ form.radius.label }} {{ form.radius() }}</div>
+    <div>{{ form.radius2.label }} {{ form.radius2() }}</div>
+    <div>{{ form.angle.label }} {{ form.angle() }}</div>
+    <div>{{ form.flat.label }} {{ form.flat() }} </div>
+    <div>{{ form.height.label }} {{ form.height() }} </div>
+    <div>{{ form.takeheight.label }} {{ form.takeheight() }} </div>
+    <div>{{ form.takeangle.label }} {{ form.takeangle() }} </div>
+    <div>{{ form.landlength.label }} {{ form.landlength() }} </div>
+    <div>{{ form.landangle.label }} {{ form.landangle() }} </div>
+    <div>{{ form.landheight.label }} {{ form.landheight() }} </div>
+    <div>{{ form.landdrop.label }} {{ form.landdrop() }} </div>
+    <button type="submit" class="btn">Submit</button>
+</form>
+
+{% endblock %}
+

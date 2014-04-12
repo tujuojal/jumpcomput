@@ -18,7 +18,7 @@ import inrunODE
 import land
 import inter
 
-from flask import Flask, make_response, render_template_string, url_for, request
+from flask import Flask, make_response, render_template_string, render_template, url_for, request
 from wtforms import Form, SelectMultipleField, DecimalField, FloatField
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -49,50 +49,6 @@ class Data(Form):
 
 template_form = """
 
-<title>Computatio</title>
-
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-<div class=page>
-  <h1>Computatio</h1>
-
-  <p> This is a testsite for computations for kickers. Updates are coming.... </p>
-  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient 
-  up to 10%. Maybe this helps to understand the uncertainty of the result.</p>
-  <p> Apr11/2014 -- Just for a change now, this uses the scipy.integrate.odeint to solve the ode </p> 
-  <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
-  the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the
-  numerical error when it is big. </p>
-  <p> Airresistance is quadratic wrt speed, default coefficient is set to correspond some windtunnel tests for crosscountry
-  <a href = "http://biomekanikk.nih.no/xchandbook/ski4.html"> skiers! </a> </p>
-  <p>See
-  <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
-  </p>
-    <div class=img>
-        <img src="{{ url_for('plot') }}" height="80%" width="100%" alt="Wait... computing in process...">
-    </div>
-
-{% block content %}
-<h1>Set the parameters</h1>
-
-<form method="POST" action="/">
-    <div>{{ form.friction.label }} {{ form.friction() }}</div>
-    <div>{{ form.airdrag.label }} {{ form.airdrag() }}</div>
-    <div>{{ form.radius.label }} {{ form.radius() }}</div>
-    <div>{{ form.radius2.label }} {{ form.radius2() }}</div>
-    <div>{{ form.angle.label }} {{ form.angle() }}</div>
-    <div>{{ form.flat.label }} {{ form.flat() }} </div>
-    <div>{{ form.height.label }} {{ form.height() }} </div>
-    <div>{{ form.takeheight.label }} {{ form.takeheight() }} </div>
-    <div>{{ form.takeangle.label }} {{ form.takeangle() }} </div>
-    <div>{{ form.landlength.label }} {{ form.landlength() }} </div>
-    <div>{{ form.landangle.label }} {{ form.landangle() }} </div>
-    <div>{{ form.landheight.label }} {{ form.landheight() }} </div>
-    <div>{{ form.landdrop.label }} {{ form.landdrop() }} </div>
-    <button type="submit" class="btn">Submit</button>
-</form>
-
-{% endblock %}
-
 """
 
 #########################################################
@@ -101,44 +57,6 @@ template_form = """
 
 completed_template = """
 
-<title>Computatio</title>
-
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
-
-  <p> This is a testsite for computations for kickers. Updates are coming.... </p>
-  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient 
-  up to 10%. Maybe this helps to understand the uncertainty of the result.</p>
-  <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
-  the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the
-  numerical error when it is big. </p>
-  <p> Airresistance is quadratic wrt speed, coefficient is set to correspond some windtunnel tests for crosscountry
-  <a href = "http://biomekanikk.nih.no/xchandbook/ski4.html"> skiers! </a> </p>
-  <p>See
-  <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
-  </p>
-    <div class=img>
-        <img src="{{ url_for('replot') }}" height="80%" width="100%" alt="Computing in process... Wait.. wait...">
-    </div>
-
-{% block content %}
-<h1>Data selected</h1>
-<form method="POST" action="/">
-    <div>{{ form.friction.label }} {{ form.friction() }} {{ form.friction.data }}</div>
-    <div>{{ form.airdrag.label }} {{ form.airdrag() }} {{ form.airdrag.data }}</div>
-    <div>{{ form.radius.label }} {{ form.radius() }} {{ form.radius.data }}</div>
-    <div>{{ form.radius2.label }} {{ form.radius2() }} {{ form.radius2.data }}</div>
-    <div>{{ form.angle.label }} {{ form.angle() }} {{ form.angle.data }}</div>
-    <div>{{ form.takeangle.label }} {{ form.takeangle() }} {{ form.takeangle.data }}</div>
-    <div>{{ form.flat.label }} {{ form.flat() }} {{ form.flat.data }}</div>
-    <div>{{ form.height.label }} {{ form.height() }} {{ form.height.data }}</div>
-    <div>{{ form.takeheight.label }} {{ form.takeheight() }} {{ form.takeheight.data }}</div>
-    <div>{{ form.landlength.label }} {{ form.landlength() }} {{ form.landlength.data }}</div>
-    <div>{{ form.landangle.label }} {{ form.landangle() }} {{ form.landangle.data }}</div>
-    <div>{{ form.landheight.label }} {{ form.landheight() }} {{ form.landheight.data }}</div>
-    <div>{{ form.landdrop.label }} {{ form.landdrop() }} {{ form.landdrop.data }}</div>
-    <button type="submit" class="btn">Submit</button>
-    </form>
-{% endblock %}
 
 """
 
@@ -188,10 +106,10 @@ def simple():
         radius = request.form['radius']
         print radius
         print "tassa on se radius--------------------------------"
-        return render_template_string(completed_template, form=app.form)
+        return render_template('completed_template.html', form=app.form)
 
     else:
-        return render_template_string(template_form, form=app.form)
+        return render_template('template_form.html', form=app.form)
 
 ##################################################
 ## This is the default computation ##
