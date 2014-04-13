@@ -3,7 +3,7 @@
 
 from scipy import *
 import pylab
-import numpy
+import numpy 
 import scipy.interpolate as interpolate
 
 class Land:
@@ -20,6 +20,7 @@ class Land:
         self.xx[1]=takesx+length
         self.xx[2]=takesx+length+(landheight)/tan(landangle*pi*2./360.)
         self.angle=landangle*pi*2./360.
+        self.r=5 #radius of the knuckle
 
     def osu(self,lento):
         """
@@ -37,17 +38,18 @@ class Land:
                 print "not hitting landing yet..."
         print "something wrong!!! landing not seen!!"
         return -1
-    ##This one is more advanced geometry, nothing huge but round nuckle
+
+    ##This one is more advanced geometry, nothing huge but a round knuckle
     def alasgeom(self,x):
-        xx2=np.array(self.xx,dtype=float)
-        yy2=np.array(self.yy,dtype=float)
-        p2=interpolate.PiecewisePolynomial(xx2,yy2[:,np.newaxis])
-        centerx=self.xx[1]-r*tan(self.angle/2.) #this is x coord of the center of circle of the knuckle
+        xx2=numpy.array(self.xx,dtype=float)
+        yy2=numpy.array(self.yy,dtype=float)
+        p2=interpolate.PiecewisePolynomial(xx2,yy2[:,numpy.newaxis])
+        centerx=self.xx[1]-self.r*tan(self.angle/2.) #this is x coord of the center of circle of the knuckle
         if (x < centerx):
             return self.yy[1]
-        elif (x < centerx + r*sin(self.angle)):
-            return sqrt(r**2 - (x - centerx)**2) - (self.yy[1]-r)
-        else
+        elif (x < centerx + self.r*sin(self.angle)):
+            return sqrt(self.r**2 - (x - centerx)**2) + (self.yy[1]-self.r)
+        else:
             return p2(x)
 
 
