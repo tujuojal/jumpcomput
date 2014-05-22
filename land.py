@@ -21,23 +21,18 @@ class Land:
         self.xx[2]=takesx+length+(landheight)/tan(landangle*pi*2./360.)
         self.angle=landangle*pi*2./360.
         self.r=5 #radius of the knuckle
+#pitää vielä lisätä numpy.linspace(alku,loppu,lkmäärä) x-koordinaatteja joiden kanssa
+#saisi tuon geometrian plottia varten paremmin kun tuo pallo on pyöreä eikä kulma
 
     def osu(self,lento):
         """
         syotetaan lentorata ja lasketaan osuuko alastuloon ja milla indeksilla
         """
-        for i in range(len(lento.t)-1):
-            if (lento.sx[i]<self.xx[1] and lento.sy[i]<self.yy[0]):
-                return i
-            elif (lento.sx[i]<self.xx[2] and lento.sy[i]<(-self.yy[1]+(self.yy[1]-self.yy[2])*(lento.sx[i]-self.xx[1])/(self.xx[2]-self.xx[1]))):
-                print (lento.sx[i]-self.xx[1])/(self.xx[2]-self.xx[1])
-                return i
-            elif lento.sx[i]>self.xx[2]:
-                return i
-            else:
-                print "not hitting landing yet..."
-        print "something wrong!!! landing not seen!!"
-        return -1
+    for val in range(len(lento.sy)):
+        if lento.sy[val]<alasgeom(lento.sx[val]):
+            print "ONNISTUU!!:"
+            return val
+    return len(lento.sx)
 
     ##This one is more advanced geometry, nothing huge but a round knuckle
     def alasgeom(self,x):
