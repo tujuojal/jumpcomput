@@ -79,7 +79,7 @@ def init():
     app.lent.D=0.4
     app.lent.A=app.lent.D/app.lent.m
     app.alast=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir.sx[app.kode],takesy=app.ir.sy[app.kode])
-    app.osuma=inter.osuma(app.lent,app.alast)
+    app.osuma=app.alast.osu(app.lent)
     #app.form.desitime.data=app.
     print app.lent.t[app.osuma]
     print "osuma-aika"
@@ -96,7 +96,7 @@ def init():
     app.lent2.D=0.4
     app.lent2.A=app.lent2.D/app.lent2.m
     app.alast2=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir2.sx[app.kode2],takesy=app.ir2.sy[app.kode2])
-    app.osuma2=inter.osuma(app.lent2,app.alast2)
+    app.osuma2=app.alast2.osu(app.lent2)
 
 @app.route("/", methods=['GET','POST'])
 def simple():
@@ -141,7 +141,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
 
     app.lent.ratkaise(sxloppu,syloppu,vxloppu,vyloppu)
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
-    app.osuma=inter.osuma(app.lent,app.alast)
+    app.osuma=app.alast.osu(app.lent)
     print "Osumakohtiaaaa!!"
     print app.osuma
     app.form.desitime.data=app.lent.t[app.osuma]
@@ -182,7 +182,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
 
         app.lent2.ratkaise(sx2loppu,sy2loppu,vx2loppu,vy2loppu)
         app.alast2.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sx2loppu,sy2loppu)
-        app.osuma2=inter.osuma(app.lent2,app.alast2)
+        app.osuma2=app.alast2.osu(app.lent2)
         print "Osumakohtiaaaa!!"
         print app.osuma2
         app.form.desitime.data=app.lent2.t[app.osuma]
@@ -249,7 +249,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
 
     app.lent.ratkaise(sxloppu,syloppu,vxloppu,vyloppu)
     app.alast.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sxloppu,syloppu)
-    app.osuma=inter.osuma(app.lent,app.alast)
+    app.osuma=app.alast.osu(app.lent)
 
     print "Hang time hang time...!!"
     print app.osuma
@@ -293,7 +293,7 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
 
         app.lent2.ratkaise(sx2loppu,sy2loppu,vx2loppu,vy2loppu)
         app.alast2.reset(app.form.landdrop.data,app.form.landlength.data,app.form.landangle.data,app.form.landheight.data,sx2loppu,sy2loppu)
-        app.osuma2=inter.osuma(app.lent2,app.alast2)
+        app.osuma2=app.alast2.osu(app.lent2)
         print "Osumakohtiaaaa!!"
         print app.osuma2
         app.form.desitime.data=app.lent2.t[app.osuma2]
