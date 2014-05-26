@@ -20,6 +20,8 @@ import inter
 
 from flask import Flask, make_response, render_template_string, url_for, request
 from wtforms import Form, SelectMultipleField, DecimalField, FloatField
+import matplotlib
+matplotlib.use("agg")
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -56,9 +58,9 @@ template_form = """
   <h1>Computatio</h1>
 
   <p> This is a testsite for computations for kickers. Updates are coming.... </p>
-  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient 
+  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient
   up to 10%. Maybe this helps to understand the uncertainty of the result.</p>
-  <p> Apr11/2014 -- Just for a change now, this uses the scipy.integrate.odeint to solve the ode </p> 
+  <p> Apr11/2014 -- Just for a change now, this uses the scipy.integrate.odeint to solve the ode </p>
   <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
   the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the
   numerical error when it is big. </p>
@@ -106,7 +108,7 @@ completed_template = """
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
 
   <p> This is a testsite for computations for kickers. Updates are coming.... </p>
-  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient 
+  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient
   up to 10%. Maybe this helps to understand the uncertainty of the result.</p>
   <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
   the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the
@@ -234,7 +236,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
 # by default desiredtime =2
     xs = app.lent.sx
     ys = app.lent.sy
-    
+
 # This is the other step of the loop, with added friction and airdrag...
 
     scatterlist=[[]] #this is empty list that will get added within the loop
@@ -289,7 +291,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
 #This is the thing to plot colors according the impact:
 #cmhot = app.axis.plot.cm.get_cmap("hot")
 #app.axis.scatter(osumax,osumay,c=varikoodi,cmap=cmhot)
-#Not quite sure if the above is corect, also inter.py which should 
+#Not quite sure if the above is corect, also inter.py which should
 #compute the impacts is very unproven..."
     app.axis.legend(loc='upper right')
     app.canvas = FigureCanvas(app.fig)

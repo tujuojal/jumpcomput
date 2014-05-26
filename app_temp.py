@@ -20,6 +20,8 @@ import inter
 
 from flask import Flask, make_response, render_template_string, render_template, url_for, request
 from wtforms import Form, SelectMultipleField, DecimalField, FloatField
+import matplotlib
+matplotlib.use("agg")
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -152,7 +154,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
 # by default desiredtime =2
     xs = app.lent.sx
     ys = app.lent.sy
-    
+
 # This is the other step of the loop, with added friction and airdrag...
 
     scatterlist=[[]] #this is empty list that will get added within the loop
@@ -207,7 +209,7 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
 #This is the thing to plot colors according the impact:
 #cmhot = app.axis.plot.cm.get_cmap("hot")
 #app.axis.scatter(osumax,osumay,c=varikoodi,cmap=cmhot)
-#Not quite sure if the above is corect, also inter.py which should 
+#Not quite sure if the above is corect, also inter.py which should
 #compute the impacts is very unproven..."
     app.axis.legend(loc='upper right')
     app.canvas = FigureCanvas(app.fig)
