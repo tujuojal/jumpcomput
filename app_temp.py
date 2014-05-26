@@ -94,10 +94,10 @@ def init():
     app.ir2.A=app.ir2.D/app.ir2.m
     app.ir2.ratkaise()
     app.kode2=app.ir2.takeoff2()
-    app.lent2=lentoODE.Lento(app.ir2.sx[app.kode2],app.ir2.sy[app.kode2],app.ir2.vx[app.kode2],app.ir2.vy[app.kode2])
+    app.lent2=lentoODE.Lento(app.ir.sx[app.kode],app.ir.sy[app.kode],app.ir2.vx[app.kode2],app.ir2.vy[app.kode2])
     app.lent2.D=0.4
     app.lent2.A=app.lent2.D/app.lent2.m
-    app.alast2=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir2.sx[app.kode2],takesy=app.ir2.sy[app.kode2])
+    app.alast2=land.Land(takeheight=1,length=10,landangle=30,landheight=10,takesx=app.ir.sx[app.kode],takesy=app.ir.sy[app.kode])
     app.osuma2=app.alast2.osu(app.lent2)
 
 @app.route("/", methods=['GET','POST'])
@@ -177,8 +177,8 @@ def plot(angle=24., ylengthstr=24.,  radius=25.,radius2=20., flat=4,takeoffAngle
         app.lent2.D=0.4*i
         app.lent2.A=app.lent2.D/app.lent2.m
 
-        sx2loppu=app.ir2.sx[app.kode2]
-        sy2loppu=app.ir2.sy[app.kode2]
+        sx2loppu=app.ir.sx[app.kode]
+        sy2loppu=app.ir.sy[app.kode]
         vx2loppu=app.ir2.vx[app.kode2]
         vy2loppu=app.ir2.vy[app.kode2]
 
@@ -288,8 +288,8 @@ def replot(angle=25., ylengthstr=20., radius=20., flat=5,takeoffAngle=20.*2.*num
         app.lent2.D=app.form.airdrag.data*i
         app.lent2.A=app.lent2.D/app.lent2.m
 
-        sx2loppu=app.ir2.sx[app.kode2]
-        sy2loppu=app.ir2.sy[app.kode2]
+        sx2loppu=app.ir.sx[app.kode]
+        sy2loppu=app.ir.sy[app.kode]
         vx2loppu=app.ir2.vx[app.kode2]
         vy2loppu=app.ir2.vy[app.kode2]
 
