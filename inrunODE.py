@@ -3,6 +3,8 @@
 """
 Now intended to use ODE solver from numpy, which means writing all again as rhs and bugs included...
 """
+import matplotlib
+matplotlib.use("agg")
 from scipy import *
 import scipy.integrate as integrate
 import numpy
@@ -76,7 +78,7 @@ class Inrun:
     def invradius(self,x):
         """
         invradius(x)
-        returns inverse radius at x-coord of inrun, 
+        returns inverse radius at x-coord of inrun,
         used to correct the support force of inrun
         (and therefore frictional force) in transitions
         """

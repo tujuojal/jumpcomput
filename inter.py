@@ -3,7 +3,8 @@
 
 #!/usr/bin/python
 
-
+import matplotlib
+matplotlib.use("agg")
 import scipy.interpolate as interpolate
 import scipy.optimize as optimize
 import numpy as np

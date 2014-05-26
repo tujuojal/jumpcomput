@@ -1,5 +1,6 @@
 #!/usr/bin/python
-
+import matplotlib
+matplotlib.use("agg")
 from scipy import *
 import scipy.integrate as integrate
 import pylab
@@ -76,7 +77,7 @@ class Lento:
         tt = pylab.linspace(0,self.Time,num=self.steps,endpoint=False)
         alkuarvot=[vxalku,vyalku,sxalku,syalku] #this says startposition and speed are according
         u = integrate.odeint(self.f,alkuarvot,tt)
-        self.vx,self.vy,self.sx,self.sy = u.T 
+        self.vx,self.vy,self.sx,self.sy = u.T
         return u
 # include this trick
 def main():
