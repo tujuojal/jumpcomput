@@ -2,7 +2,7 @@
 #!/usr/bin/python
 import matplotlib
 matplotlib.use("agg")
-from scipy import *
+from numpy import pi, sin, tan, sqrt
 import pylab
 import numpy
 import scipy.interpolate as interpolate
