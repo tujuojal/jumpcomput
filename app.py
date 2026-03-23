@@ -11,6 +11,7 @@
 # Go to http://localhost:5000/plot.png and see a plot of random data.
 
 import os
+import secrets
 import StringIO
 import numpy
 import lentoODE
@@ -20,6 +21,7 @@ import inter
 
 from flask import Flask, make_response, render_template_string, url_for, request, session
 from wtforms import Form, SelectMultipleField, DecimalField, FloatField
+from wtforms.validators import NumberRange
 import matplotlib
 matplotlib.use("agg")
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -30,20 +32,34 @@ from matplotlib.figure import Figure
 ############################################################
 
 class Data(Form):
-    friction = FloatField('Friction coeff (0.02-0.06 maybe?)',default=0.05)
-    airdrag = FloatField('Airdrag const', default=0.4)
-    radius = FloatField('Radius of tranny',default=25)
-    radius2 = FloatField('Radius of tranny nr2',default=20)
-    angle = FloatField('Angle of inrun',default=24)
-    takeangle = FloatField('Angle of takeof',default=20)
-    flat = FloatField('Length of inrun-flat',default=5)
-    height = FloatField('Height of Inrun',default=24)
-    takeheight = FloatField('Height of Takeoff',default=4)
-    desitime = FloatField('Hangtime',default=2)
-    landlength = FloatField('Length of table', default = 10)
-    landangle = FloatField('Angle of landing', default = 24)
-    landheight = FloatField('Height of landing', default =20)
-    landdrop = FloatField('Drop from takeof', default = 1)
+    friction   = FloatField('Friction coeff (0.02-0.06 maybe?)', default=0.05,
+                            validators=[NumberRange(min=0.0,  max=0.5,   message='friction must be 0–0.5')])
+    airdrag    = FloatField('Airdrag const',         default=0.4,
+                            validators=[NumberRange(min=0.0,  max=5.0,   message='airdrag must be 0–5')])
+    radius     = FloatField('Radius of tranny',      default=25,
+                            validators=[NumberRange(min=1.0,  max=200.0, message='radius must be 1–200 m')])
+    radius2    = FloatField('Radius of tranny nr2',  default=20,
+                            validators=[NumberRange(min=1.0,  max=200.0, message='radius2 must be 1–200 m')])
+    angle      = FloatField('Angle of inrun',        default=24,
+                            validators=[NumberRange(min=0.0,  max=89.0,  message='angle must be 0–89 deg')])
+    takeangle  = FloatField('Angle of takeof',       default=20,
+                            validators=[NumberRange(min=0.0,  max=89.0,  message='takeangle must be 0–89 deg')])
+    flat       = FloatField('Length of inrun-flat',  default=5,
+                            validators=[NumberRange(min=0.0,  max=100.0, message='flat must be 0–100 m')])
+    height     = FloatField('Height of Inrun',       default=24,
+                            validators=[NumberRange(min=0.0,  max=200.0, message='height must be 0–200 m')])
+    takeheight = FloatField('Height of Takeoff',     default=4,
+                            validators=[NumberRange(min=0.0,  max=50.0,  message='takeheight must be 0–50 m')])
+    desitime   = FloatField('Hangtime',              default=2,
+                            validators=[NumberRange(min=0.0,  max=20.0,  message='desitime must be 0–20 s')])
+    landlength = FloatField('Length of table',       default=10,
+                            validators=[NumberRange(min=0.0,  max=100.0, message='landlength must be 0–100 m')])
+    landangle  = FloatField('Angle of landing',      default=24,
+                            validators=[NumberRange(min=0.1,  max=89.0,  message='landangle must be 0.1–89 deg')])
+    landheight = FloatField('Height of landing',     default=20,
+                            validators=[NumberRange(min=0.0,  max=200.0, message='landheight must be 0–200 m')])
+    landdrop   = FloatField('Drop from takeof',      default=1,
+                            validators=[NumberRange(min=0.0,  max=50.0,  message='landdrop must be 0–50 m')])
 
 ###########################################################
 ## Templates for the html as filled and so ##
@@ -77,6 +93,7 @@ template_form = """
 <h1>Set the parameters</h1>
 
 <form method="POST" action="/">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
     <div>{{ form.friction.label }} {{ form.friction() }}</div>
     <div>{{ form.airdrag.label }} {{ form.airdrag() }}</div>
     <div>{{ form.radius.label }} {{ form.radius() }}</div>
@@ -125,6 +142,7 @@ completed_template = """
 {% block content %}
 <h1>Data selected</h1>
 <form method="POST" action="/">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
     <div>{{ form.friction.label }} {{ form.friction() }} {{ form.friction.data }}</div>
     <div>{{ form.airdrag.label }} {{ form.airdrag() }} {{ form.airdrag.data }}</div>
     <div>{{ form.radius.label }} {{ form.radius() }} {{ form.radius.data }}</div>
@@ -155,10 +173,27 @@ app.secret_key = os.environ.get('SECRET_KEY', 'jumpcomput-change-this-secret-in-
 # Scaling factors for uncertainty band (±10% on friction and airdrag)
 lista = [0.9, 1.1]
 
+def _clamp(value, lo, hi, default):
+    """Return value clamped to [lo, hi], or default if value is not a number."""
+    try:
+        return max(lo, min(hi, float(value)))
+    except (TypeError, ValueError):
+        return default
+
 @app.route("/", methods=['GET','POST'])
 def simple():
     form = Data(request.form)
     if request.method == 'POST':
+        # CSRF check
+        submitted = request.form.get('_csrf_token', '')
+        expected  = session.get('_csrf_token', '')
+        if not submitted or not secrets.compare_digest(submitted, expected):
+            return 'CSRF validation failed', 403
+        if not form.validate():
+            csrf_token = session.get('_csrf_token', '')
+            return render_template_string(template_form, form=form, csrf_token=csrf_token)
+        # Rotate token after each successful POST
+        session['_csrf_token'] = secrets.token_hex(32)
         # Store submitted form values in session so /replot.png can read them
         session['form_data'] = {
             'friction':   form.friction.data,
@@ -175,9 +210,12 @@ def simple():
             'landheight': form.landheight.data,
             'landdrop':   form.landdrop.data,
         }
-        return render_template_string(completed_template, form=form)
+        csrf_token = session['_csrf_token']
+        return render_template_string(completed_template, form=form, csrf_token=csrf_token)
     else:
-        return render_template_string(template_form, form=form)
+        session['_csrf_token'] = secrets.token_hex(32)
+        csrf_token = session['_csrf_token']
+        return render_template_string(template_form, form=form, csrf_token=csrf_token)
 
 ##################################################
 ## This is the default computation ##
@@ -267,21 +305,22 @@ def plot(angle=24., ylengthstr=24., radius=25., radius2=20., flat=4,
 
 @app.route('/replot.png')
 def replot():
-    # Read form data saved to session by the POST to /
+    # Read form data saved to session by the POST to /.
+    # _clamp guards against tampered session values.
     fd = session.get('form_data', {})
-    friction   = fd.get('friction',   0.05)
-    airdrag    = fd.get('airdrag',    0.4)
-    radius     = fd.get('radius',     25.)
-    radius2    = fd.get('radius2',    20.)
-    angle      = fd.get('angle',      24.)
-    takeangle  = fd.get('takeangle',  20.)
-    flat       = fd.get('flat',       5.)
-    height     = fd.get('height',     24.)
-    takeheight = fd.get('takeheight', 4.)
-    landlength = fd.get('landlength', 10.)
-    landangle  = fd.get('landangle',  24.)
-    landheight = fd.get('landheight', 20.)
-    landdrop   = fd.get('landdrop',   1.)
+    friction   = _clamp(fd.get('friction'),   0.0,  0.5,   0.05)
+    airdrag    = _clamp(fd.get('airdrag'),    0.0,  5.0,   0.4)
+    radius     = _clamp(fd.get('radius'),     1.0,  200.0, 25.)
+    radius2    = _clamp(fd.get('radius2'),    1.0,  200.0, 20.)
+    angle      = _clamp(fd.get('angle'),      0.0,  89.0,  24.)
+    takeangle  = _clamp(fd.get('takeangle'),  0.0,  89.0,  20.)
+    flat       = _clamp(fd.get('flat'),       0.0,  100.0, 5.)
+    height     = _clamp(fd.get('height'),     0.0,  200.0, 24.)
+    takeheight = _clamp(fd.get('takeheight'), 0.0,  50.0,  4.)
+    landlength = _clamp(fd.get('landlength'), 0.0,  100.0, 10.)
+    landangle  = _clamp(fd.get('landangle'),  0.1,  89.0,  24.)
+    landheight = _clamp(fd.get('landheight'), 0.0,  200.0, 20.)
+    landdrop   = _clamp(fd.get('landdrop'),   0.0,  50.0,  1.)
 
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
