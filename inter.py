@@ -13,7 +13,7 @@ import pylab
 def osuma(lento,alastulo):
     xx2=np.array(alastulo.xx,dtype=float)
     yy2=np.array(alastulo.yy,dtype=float)
-    p2=interpolate.PiecewisePolynomial(xx2,yy2[:,np.newaxis])
+    p2=interpolate.CubicSpline(xx2,yy2)
     for val in range(len(lento.sy)):
         if lento.sy[val]<p2(lento.sx[val]):
             print "ONNISTUU!!:"
@@ -23,8 +23,7 @@ def osuma(lento,alastulo):
 def osumavoima(osumakohta,lento,alastulo):
     xx2=np.array(alastulo.xx,dtype=float)
     yy2=np.array(alastulo.yy,dtype=float)
-    p2=interpolate.PiecewisePolynomial(xx2,yy2[:,np.newaxis])
-    dp2=p2.derivatives(lento.sx)
-    kulma=dp2[1]        #this is list of the first derivatives at points of flightpath
+    p2=interpolate.CubicSpline(xx2,yy2)
+    kulma=p2.derivative()(lento.sx)  #this is list of the first derivatives at points of flightpath
     isku=(lento.vx[osumakohta]*kulma[osumakohta]+lento.vy[osumakohta])/np.sqrt(kulma[osumakohta]*kulma[osumakohta]+1)
     return isku

@@ -182,7 +182,7 @@ class Inrun:
                 print "Warning warning, timesteps not reaching takeoff!!"
                 self.Time= self.Time + 3
                 self.ratkaise()
-                sel.takeoff2()
+                self.takeoff2()
         while self.sy[kode]+self.ylengthstr+(self.radius-cos(self.runangle)*self.radius)<self.takeoffHeight:
             print "angle ok, reaching for height!!"
 #add here a check for speed!!! If speed is too small, it means the inrun will not give enough speed to reach the takeoff!!
