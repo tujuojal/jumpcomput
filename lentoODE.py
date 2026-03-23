@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import matplotlib
 matplotlib.use("agg")
-from scipy import *
+from numpy import pi, sin, cos, sqrt
 import scipy.integrate as integrate
 import pylab
 import numpy
