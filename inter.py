@@ -16,7 +16,7 @@ def osuma(lento,alastulo):
     p2=interpolate.CubicSpline(xx2,yy2)
     for val in range(len(lento.sy)):
         if lento.sy[val]<p2(lento.sx[val]):
-            print "ONNISTUU!!:"
+            print("ONNISTUU!!:")
             return val
     return len(lento.sx)
 

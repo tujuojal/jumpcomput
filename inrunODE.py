@@ -9,7 +9,6 @@ from numpy import pi, sin, cos, tan, arcsin, arctan2, sqrt
 import scipy.integrate as integrate
 import numpy
 import pylab
-import lento2
 #constants
 #all angles given in radians!!!!
 class Inrun:
@@ -131,8 +130,8 @@ class Inrun:
             self.sy[i+1]=self.dt*self.vy[i+1]+self.sy[i]
             if rk==0 and check==0:
                 check=1
-                print "Y-height at the bottom:"
-                print self.sy[i]
+                print("Y-height at the bottom:")
+                print(self.sy[i])
 
 #this is the right hand side function for vector ode du/dt = f(u,t), where u=[vx,vy,sx,sy]
     def f(self,u,time):
@@ -174,21 +173,21 @@ class Inrun:
         while self.rinnekulma(self.sx[kode])>-self.takeoffAngle and kode+3<self.steps:
             kode=kode+1
             if self.sy[kode]+self.ylengthstr+(self.radius-cos(self.runangle)*self.radius)>self.takeoffHeight and self.rinnekulma(self.sx[kode])<0:
-                print "Warniiing!!, takeofHeight reached, but angle not!!! fix your parameters stupid!! \n Angle now:"
+                print("Warniiing!!, takeofHeight reached, but angle not!!! fix your parameters stupid!! \n Angle now:")
                 trueAngle=arctan2(self.sy[kode]-self.sy[kode-1],self.sx[kode]-self.sx[kode-1])*360./2./pi
-                print trueAngle
+                print(trueAngle)
                 break
             if kode==self.steps-1:
-                print "Warning warning, timesteps not reaching takeoff!!"
+                print("Warning warning, timesteps not reaching takeoff!!")
                 self.Time= self.Time + 3
                 self.ratkaise()
                 self.takeoff2()
         while self.sy[kode]+self.ylengthstr+(self.radius-cos(self.runangle)*self.radius)<self.takeoffHeight:
-            print "angle ok, reaching for height!!"
+            print("angle ok, reaching for height!!")
 #add here a check for speed!!! If speed is too small, it means the inrun will not give enough speed to reach the takeoff!!
             kode=kode+1
             if kode>=self.steps-1:
-                print "Warning warning, timesteps reached max, fix inrun2.py, automatically increasing maximum time +3seconds!!"
+                print("Warning warning, timesteps reached max, fix inrun2.py, automatically increasing maximum time +3seconds!!")
                 self.Time= self.Time + 3
                 self.ratkaise()
                 self.takeoff2()
@@ -196,18 +195,18 @@ class Inrun:
 #print kode
 #print "--maximum--"
 #print steps
-        print "Y-height at the takeoff:"
-        print self.sy[kode]
+        print("Y-height at the takeoff:")
+        print(self.sy[kode])
 
 #same with acceleration
         trueAngle=arctan2(self.sy[kode]-self.sy[kode-1],self.sx[kode]-self.sx[kode-1])*360./2./pi
-        print "takeoffAngle now:"
-        print trueAngle
+        print("takeoffAngle now:")
+        print(trueAngle)
 #same with acceleration
         trueAngle=arctan2(self.vy[kode],self.vx[kode])*360./2./pi
-        print "takeoffAngle now by speed:"
-        print trueAngle
-        print "Testing Testing"
+        print("takeoffAngle now by speed:")
+        print(trueAngle)
+        print("Testing Testing")
 
 #	pylab.plot(self.vx[kode],self.vy[kode],'o')
 #	pylab.plot(self.vx[kode-1],self.vy[kode-1],'o')
@@ -217,6 +216,7 @@ class Inrun:
 	# include this trick
 
 if __name__ == '__main__':
+    import lento2
 ##rest after
     radius=45.	#this is global constant, radius of the transition1
     radius2=5.	#this is global constant, radius of the transition2
