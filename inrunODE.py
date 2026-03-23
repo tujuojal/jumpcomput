@@ -5,7 +5,7 @@ Now intended to use ODE solver from numpy, which means writing all again as rhs 
 """
 import matplotlib
 matplotlib.use("agg")
-from scipy import *
+from numpy import pi, sin, cos, tan, arcsin, arctan2, sqrt
 import scipy.integrate as integrate
 import numpy
 import pylab
