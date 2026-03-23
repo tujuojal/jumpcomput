@@ -42,7 +42,7 @@ class Land:
     def alasgeom(self,x):
         xx2=numpy.array(self.xx_info,dtype=float)
         yy2=numpy.array(self.yy_info,dtype=float)
-        p2=interpolate.PiecewisePolynomial(xx2,yy2[:,numpy.newaxis])
+        p2=interpolate.CubicSpline(xx2,yy2)
         centerx=self.xx_info[1]-self.r*tan(self.angle/2.) #this is x coord of the center of circle of the knuckle
         if (x < centerx):
             return self.yy_info[1]
