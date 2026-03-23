@@ -34,7 +34,7 @@ class Land:
         """
         for val in range(len(lento.sy)):
             if lento.sy[val]<self.alasgeom(lento.sx[val]):
-                print "ONNISTUU!!:"
+                print("ONNISTUU!!:")
                 return val
         return len(lento.sx)
 

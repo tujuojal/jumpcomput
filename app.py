@@ -12,7 +12,7 @@
 
 import os
 import secrets
-import StringIO
+from io import BytesIO
 import numpy
 import lentoODE
 import inrunODE
@@ -252,8 +252,8 @@ def plot(angle=24., ylengthstr=24., radius=25., radius2=20., flat=4,
     alast = land.Land(takeheight=1, length=10, landangle=24, landheight=20,
                       takesx=sxloppu, takesy=syloppu)
     osuma_idx = inter.osuma(lent, alast)
-    print lent.t[osuma_idx]
-    print "osuma-aika"
+    print(lent.t[osuma_idx])
+    print("osuma-aika")
 
     xs = lent.sx
     ys = lent.sy
@@ -281,8 +281,8 @@ def plot(angle=24., ylengthstr=24., radius=25., radius2=20., flat=4,
         alast2 = land.Land(takeheight=1, length=10, landangle=24, landheight=20,
                            takesx=ir2.sx[kode2], takesy=ir2.sy[kode2])
         osuma2_idx = inter.osuma(lent2, alast2)
-        print "Osumakohtiaaaa!!"
-        print osuma2_idx
+        print("Osumakohtiaaaa!!")
+        print(osuma2_idx)
 
         xs2 = lent2.sx
         ys2 = lent2.sy
@@ -293,7 +293,7 @@ def plot(angle=24., ylengthstr=24., radius=25., radius2=20., flat=4,
     axis.plot(alast.xx, alast.yy, color="black", linewidth=1, label="kicker")
     axis.legend(loc='upper right')
     canvas = FigureCanvas(fig)
-    output = StringIO.StringIO()
+    output = BytesIO()
     canvas.print_png(output)
     response = make_response(output.getvalue())
     response.mimetype = 'image/png'
@@ -351,8 +351,8 @@ def replot():
                       landheight=landheight, takesx=sxloppu, takesy=syloppu)
     osuma_idx = inter.osuma(lent, alast)
 
-    print "Hang time hang time...!!"
-    print osuma_idx
+    print("Hang time hang time...!!")
+    print(osuma_idx)
 
     xs = lent.sx
     ys = lent.sy
@@ -383,8 +383,8 @@ def replot():
         alast2 = land.Land(takeheight=landdrop, length=landlength, landangle=landangle,
                            landheight=landheight, takesx=ir2.sx[kode2], takesy=ir2.sy[kode2])
         osuma2_idx = inter.osuma(lent2, alast2)
-        print "Osumakohtiaaaa!!"
-        print osuma2_idx
+        print("Osumakohtiaaaa!!")
+        print(osuma2_idx)
 
         xs2 = lent2.sx
         ys2 = lent2.sy
@@ -392,7 +392,7 @@ def replot():
 
     axis.legend(loc='upper right')
     canvas = FigureCanvas(fig)
-    output = StringIO.StringIO()
+    output = BytesIO()
     canvas.print_png(output)
     response = make_response(output.getvalue())
     response.mimetype = 'image/png'
