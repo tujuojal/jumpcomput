@@ -32,134 +32,177 @@ from matplotlib.figure import Figure
 ############################################################
 
 class Data(Form):
-    friction   = FloatField('Friction coeff (0.02-0.06 maybe?)', default=0.05,
+    friction   = FloatField('Friction coeff (0.02–0.06)',  default=0.05,
                             validators=[NumberRange(min=0.0,  max=0.5,   message='friction must be 0–0.5')])
-    airdrag    = FloatField('Airdrag const',         default=0.4,
+    airdrag    = FloatField('Air drag const',              default=0.4,
                             validators=[NumberRange(min=0.0,  max=5.0,   message='airdrag must be 0–5')])
-    radius     = FloatField('Radius of tranny',      default=25,
+    radius     = FloatField('Inrun radius 1 (m)',          default=25,
                             validators=[NumberRange(min=1.0,  max=200.0, message='radius must be 1–200 m')])
-    radius2    = FloatField('Radius of tranny nr2',  default=20,
+    radius2    = FloatField('Inrun radius 2 (m)',          default=20,
                             validators=[NumberRange(min=1.0,  max=200.0, message='radius2 must be 1–200 m')])
-    angle      = FloatField('Angle of inrun',        default=24,
-                            validators=[NumberRange(min=0.0,  max=89.0,  message='angle must be 0–89 deg')])
-    takeangle  = FloatField('Angle of takeof',       default=20,
-                            validators=[NumberRange(min=0.0,  max=89.0,  message='takeangle must be 0–89 deg')])
-    flat       = FloatField('Length of inrun-flat',  default=5,
+    angle      = FloatField('Inrun angle (°)',             default=24,
+                            validators=[NumberRange(min=0.0,  max=89.0,  message='angle must be 0–89°')])
+    takeangle  = FloatField('Takeoff angle (°)',           default=20,
+                            validators=[NumberRange(min=0.0,  max=89.0,  message='takeangle must be 0–89°')])
+    flat       = FloatField('Flat section length (m)',     default=5,
                             validators=[NumberRange(min=0.0,  max=100.0, message='flat must be 0–100 m')])
-    height     = FloatField('Height of Inrun',       default=24,
+    height     = FloatField('Inrun height (m)',            default=24,
                             validators=[NumberRange(min=0.0,  max=200.0, message='height must be 0–200 m')])
-    takeheight = FloatField('Height of Takeoff',     default=4,
+    takeheight = FloatField('Takeoff height (m)',          default=4,
                             validators=[NumberRange(min=0.0,  max=50.0,  message='takeheight must be 0–50 m')])
-    desitime   = FloatField('Hangtime',              default=2,
+    desitime   = FloatField('Desired hang time (s)',       default=2,
                             validators=[NumberRange(min=0.0,  max=20.0,  message='desitime must be 0–20 s')])
-    landlength = FloatField('Length of table',       default=10,
+    landlength = FloatField('Landing table length (m)',    default=10,
                             validators=[NumberRange(min=0.0,  max=100.0, message='landlength must be 0–100 m')])
-    landangle  = FloatField('Angle of landing',      default=24,
-                            validators=[NumberRange(min=0.1,  max=89.0,  message='landangle must be 0.1–89 deg')])
-    landheight = FloatField('Height of landing',     default=20,
+    landangle  = FloatField('Landing angle (°)',           default=24,
+                            validators=[NumberRange(min=0.1,  max=89.0,  message='landangle must be 0.1–89°')])
+    landheight = FloatField('Landing height (m)',          default=20,
                             validators=[NumberRange(min=0.0,  max=200.0, message='landheight must be 0–200 m')])
-    landdrop   = FloatField('Drop from takeof',      default=1,
+    landdrop   = FloatField('Drop from takeoff (m)',       default=1,
                             validators=[NumberRange(min=0.0,  max=50.0,  message='landdrop must be 0–50 m')])
 
 ###########################################################
 ## Templates for the html as filled and so ##
 ###########################################################
 
-template_form = """
-
-<title>Computatio</title>
-
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+template_form = """<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kicker Computatio</title>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
 <div class=page>
-  <h1>Computatio</h1>
+  <h1>Kicker Computatio</h1>
+  <p>Physics simulation for ski/snowboard kickers. The green band shows ±10% uncertainty in friction and air drag.
+  Air resistance is quadratic in speed; default coefficient matches
+  <a href="http://biomekanikk.nih.no/xchandbook/ski4.html">wind-tunnel tests for cross-country skiers</a>.
+  More info at <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html">my website</a>.</p>
+  <div class=img>
+    <img src="{{ url_for('plot') }}" width="100%" alt="Default simulation plot">
+  </div>
 
-  <p> This is a testsite for computations for kickers. Updates are coming.... </p>
-  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient
-  up to 10%. Maybe this helps to understand the uncertainty of the result.</p>
-  <p> Apr11/2014 -- Just for a change now, this uses the scipy.integrate.odeint to solve the ode </p>
-  <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
-  the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the
-  numerical error when it is big. </p>
-  <p> Airresistance is quadratic wrt speed, default coefficient is set to correspond some windtunnel tests for crosscountry
-  <a href = "http://biomekanikk.nih.no/xchandbook/ski4.html"> skiers! </a> </p>
-  <p>See
-  <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
-  </p>
-    <div class=img>
-        <img src="{{ url_for('plot') }}" height="80%" width="100%" alt="Wait... computing in process...">
-    </div>
-
-{% block content %}
-<h1>Set the parameters</h1>
-
-<form method="POST" action="/">
+  <h2>Set the parameters</h2>
+  <form method="POST" action="/">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-    <div>{{ form.friction.label }} {{ form.friction() }}</div>
-    <div>{{ form.airdrag.label }} {{ form.airdrag() }}</div>
-    <div>{{ form.radius.label }} {{ form.radius() }}</div>
-    <div>{{ form.radius2.label }} {{ form.radius2() }}</div>
-    <div>{{ form.angle.label }} {{ form.angle() }}</div>
-    <div>{{ form.flat.label }} {{ form.flat() }} </div>
-    <div>{{ form.height.label }} {{ form.height() }} </div>
-    <div>{{ form.takeheight.label }} {{ form.takeheight() }} </div>
-    <div>{{ form.takeangle.label }} {{ form.takeangle() }} </div>
-    <div>{{ form.landlength.label }} {{ form.landlength() }} </div>
-    <div>{{ form.landangle.label }} {{ form.landangle() }} </div>
-    <div>{{ form.landheight.label }} {{ form.landheight() }} </div>
-    <div>{{ form.landdrop.label }} {{ form.landdrop() }} </div>
-    <button type="submit" class="btn">Submit</button>
-</form>
 
-{% endblock %}
+    <fieldset>
+      <legend>Inrun</legend>
+      <div class=field>{{ form.friction.label }} {{ form.friction() }}
+        {% for e in form.friction.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.airdrag.label }} {{ form.airdrag() }}
+        {% for e in form.airdrag.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.radius.label }} {{ form.radius() }}
+        {% for e in form.radius.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.radius2.label }} {{ form.radius2() }}
+        {% for e in form.radius2.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.angle.label }} {{ form.angle() }}
+        {% for e in form.angle.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.flat.label }} {{ form.flat() }}
+        {% for e in form.flat.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.height.label }} {{ form.height() }}
+        {% for e in form.height.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+    </fieldset>
 
+    <fieldset>
+      <legend>Takeoff</legend>
+      <div class=field>{{ form.takeangle.label }} {{ form.takeangle() }}
+        {% for e in form.takeangle.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.takeheight.label }} {{ form.takeheight() }}
+        {% for e in form.takeheight.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.desitime.label }} {{ form.desitime() }}
+        {% for e in form.desitime.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Landing</legend>
+      <div class=field>{{ form.landlength.label }} {{ form.landlength() }}
+        {% for e in form.landlength.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.landangle.label }} {{ form.landangle() }}
+        {% for e in form.landangle.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.landheight.label }} {{ form.landheight() }}
+        {% for e in form.landheight.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.landdrop.label }} {{ form.landdrop() }}
+        {% for e in form.landdrop.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+    </fieldset>
+
+    <button type="submit" class="btn">Compute</button>
+  </form>
+</div>
+</body>
+</html>
 """
 
 #########################################################
 ## and the other template... ##
 #########################################################
 
-completed_template = """
+completed_template = """<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kicker Computatio — Results</title>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class=page>
+  <h1>Kicker Computatio</h1>
+  <div class=img>
+    <img src="{{ url_for('replot') }}" width="100%" alt="Simulation result plot">
+  </div>
 
-<title>Computatio</title>
-
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
-
-  <p> This is a testsite for computations for kickers. Updates are coming.... </p>
-  <p> Dec19/2013 -- Now added extra flightpaths to indicate mistake in airdrag coefficient and friction coefficient
-  up to 10%. Maybe this helps to understand the uncertainty of the result.</p>
-  <p> Friction is taken into account by multiplying the support force by friction coefficient, the inrun is being drawn as
-  the path determined by the forces which are determined by the parameters. So, in principle you should be able to see the
-  numerical error when it is big. </p>
-  <p> Airresistance is quadratic wrt speed, coefficient is set to correspond some windtunnel tests for crosscountry
-  <a href = "http://biomekanikk.nih.no/xchandbook/ski4.html"> skiers! </a> </p>
-  <p>See
-  <a href="http://users.jyu.fi/~tujuojal/harrasteosio.html"> my website </a> and info there about this project.
-  </p>
-    <div class=img>
-        <img src="{{ url_for('replot') }}" height="80%" width="100%" alt="Computing in process... Wait.. wait...">
-    </div>
-
-{% block content %}
-<h1>Data selected</h1>
-<form method="POST" action="/">
+  <h2>Adjust parameters</h2>
+  <form method="POST" action="/">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-    <div>{{ form.friction.label }} {{ form.friction() }} {{ form.friction.data }}</div>
-    <div>{{ form.airdrag.label }} {{ form.airdrag() }} {{ form.airdrag.data }}</div>
-    <div>{{ form.radius.label }} {{ form.radius() }} {{ form.radius.data }}</div>
-    <div>{{ form.radius2.label }} {{ form.radius2() }} {{ form.radius2.data }}</div>
-    <div>{{ form.angle.label }} {{ form.angle() }} {{ form.angle.data }}</div>
-    <div>{{ form.takeangle.label }} {{ form.takeangle() }} {{ form.takeangle.data }}</div>
-    <div>{{ form.flat.label }} {{ form.flat() }} {{ form.flat.data }}</div>
-    <div>{{ form.height.label }} {{ form.height() }} {{ form.height.data }}</div>
-    <div>{{ form.takeheight.label }} {{ form.takeheight() }} {{ form.takeheight.data }}</div>
-    <div>{{ form.landlength.label }} {{ form.landlength() }} {{ form.landlength.data }}</div>
-    <div>{{ form.landangle.label }} {{ form.landangle() }} {{ form.landangle.data }}</div>
-    <div>{{ form.landheight.label }} {{ form.landheight() }} {{ form.landheight.data }}</div>
-    <div>{{ form.landdrop.label }} {{ form.landdrop() }} {{ form.landdrop.data }}</div>
-    <button type="submit" class="btn">Submit</button>
-    </form>
-{% endblock %}
 
+    <fieldset>
+      <legend>Inrun</legend>
+      <div class=field>{{ form.friction.label }} {{ form.friction() }}
+        {% for e in form.friction.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.airdrag.label }} {{ form.airdrag() }}
+        {% for e in form.airdrag.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.radius.label }} {{ form.radius() }}
+        {% for e in form.radius.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.radius2.label }} {{ form.radius2() }}
+        {% for e in form.radius2.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.angle.label }} {{ form.angle() }}
+        {% for e in form.angle.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.flat.label }} {{ form.flat() }}
+        {% for e in form.flat.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.height.label }} {{ form.height() }}
+        {% for e in form.height.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Takeoff</legend>
+      <div class=field>{{ form.takeangle.label }} {{ form.takeangle() }}
+        {% for e in form.takeangle.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.takeheight.label }} {{ form.takeheight() }}
+        {% for e in form.takeheight.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.desitime.label }} {{ form.desitime() }}
+        {% for e in form.desitime.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Landing</legend>
+      <div class=field>{{ form.landlength.label }} {{ form.landlength() }}
+        {% for e in form.landlength.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.landangle.label }} {{ form.landangle() }}
+        {% for e in form.landangle.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.landheight.label }} {{ form.landheight() }}
+        {% for e in form.landheight.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+      <div class=field>{{ form.landdrop.label }} {{ form.landdrop() }}
+        {% for e in form.landdrop.errors %}<span class=error> {{ e }}</span>{% endfor %}</div>
+    </fieldset>
+
+    <button type="submit" class="btn">Recompute</button>
+  </form>
+</div>
+</body>
+</html>
 """
 
 
@@ -224,7 +267,7 @@ def simple():
 @app.route('/plot.png')
 def plot(angle=24., ylengthstr=24., radius=25., radius2=20., flat=4,
          takeoffAngle=20.*2.*numpy.pi/360., takeoffHeight=4.):
-    fig = Figure()
+    fig = Figure(figsize=(10, 6))
     axis = fig.add_subplot(1, 1, 1)
 
     ir = inrunODE.Inrun()
@@ -252,14 +295,11 @@ def plot(angle=24., ylengthstr=24., radius=25., radius2=20., flat=4,
     alast = land.Land(takeheight=1, length=10, landangle=24, landheight=20,
                       takesx=sxloppu, takesy=syloppu)
     osuma_idx = inter.osuma(lent, alast)
-    print(lent.t[osuma_idx])
-    print("osuma-aika")
 
     xs = lent.sx
     ys = lent.sy
 
-    scatterlist = [[]]
-    for i in lista:
+    for idx, i in enumerate(lista):
         ir2 = inrunODE.Inrun()
         ir2.ylengthstr = ylengthstr
         ir2.runangle = angle * 2. * numpy.pi / 360.
@@ -281,16 +321,19 @@ def plot(angle=24., ylengthstr=24., radius=25., radius2=20., flat=4,
         alast2 = land.Land(takeheight=1, length=10, landangle=24, landheight=20,
                            takesx=ir2.sx[kode2], takesy=ir2.sy[kode2])
         osuma2_idx = inter.osuma(lent2, alast2)
-        print("Osumakohtiaaaa!!")
-        print(osuma2_idx)
 
         xs2 = lent2.sx
         ys2 = lent2.sy
-        axis.plot(xs2[:osuma2_idx+1], ys2[:osuma2_idx+1], color="green", linewidth=1)
+        lbl = "±10% uncertainty" if idx == 0 else "_nolegend_"
+        axis.plot(xs2[:osuma2_idx+1], ys2[:osuma2_idx+1], color="green", linewidth=1, label=lbl)
 
-    axis.plot(xs[:osuma_idx+1], ys[:osuma_idx+1], color="red", linewidth=2, label="flightpath")
-    axis.plot(ir.sx[:kode+1], ir.sy[:kode+1], color="black", linewidth=1, label="kicker")
-    axis.plot(alast.xx, alast.yy, color="black", linewidth=1, label="kicker")
+    axis.plot(xs[:osuma_idx+1], ys[:osuma_idx+1], color="red", linewidth=2, label="Flight path")
+    axis.plot(ir.sx[:kode+1], ir.sy[:kode+1], color="black", linewidth=2, label="Kicker")
+    axis.plot(alast.xx, alast.yy, color="steelblue", linewidth=1.5, label="Landing zone")
+    axis.set_xlabel("Horizontal distance (m)")
+    axis.set_ylabel("Height (m)")
+    axis.set_title("Kicker flight path simulation")
+    axis.grid(True, alpha=0.3)
     axis.legend(loc='upper right')
     canvas = FigureCanvas(fig)
     output = BytesIO()
@@ -322,7 +365,7 @@ def replot():
     landheight = _clamp(fd.get('landheight'), 0.0,  200.0, 20.)
     landdrop   = _clamp(fd.get('landdrop'),   0.0,  50.0,  1.)
 
-    fig = Figure()
+    fig = Figure(figsize=(10, 6))
     axis = fig.add_subplot(1, 1, 1)
 
     ir = inrunODE.Inrun()
@@ -351,17 +394,14 @@ def replot():
                       landheight=landheight, takesx=sxloppu, takesy=syloppu)
     osuma_idx = inter.osuma(lent, alast)
 
-    print("Hang time hang time...!!")
-    print(osuma_idx)
-
     xs = lent.sx
     ys = lent.sy
 
-    axis.plot(xs[:osuma_idx+1], ys[:osuma_idx+1], color="red", linewidth=2, label="flightpath")
-    axis.plot(ir.sx[:kode+1], ir.sy[:kode+1], color="black", linewidth=1, label="kicker")
-    axis.plot(alast.xx, alast.yy, color="black", linewidth=1, label="kicker")
+    axis.plot(xs[:osuma_idx+1], ys[:osuma_idx+1], color="red", linewidth=2, label="Flight path")
+    axis.plot(ir.sx[:kode+1], ir.sy[:kode+1], color="black", linewidth=2, label="Kicker")
+    axis.plot(alast.xx, alast.yy, color="steelblue", linewidth=1.5, label="Landing zone")
 
-    for i in lista:
+    for idx, i in enumerate(lista):
         ir2 = inrunODE.Inrun()
         ir2.ylengthstr = height
         ir2.runangle = angle * 2. * numpy.pi / 360.
@@ -383,13 +423,16 @@ def replot():
         alast2 = land.Land(takeheight=landdrop, length=landlength, landangle=landangle,
                            landheight=landheight, takesx=ir2.sx[kode2], takesy=ir2.sy[kode2])
         osuma2_idx = inter.osuma(lent2, alast2)
-        print("Osumakohtiaaaa!!")
-        print(osuma2_idx)
 
         xs2 = lent2.sx
         ys2 = lent2.sy
-        axis.plot(xs2[:osuma2_idx+1], ys2[:osuma2_idx+1], color="green", linewidth=1)
+        lbl = "±10% uncertainty" if idx == 0 else "_nolegend_"
+        axis.plot(xs2[:osuma2_idx+1], ys2[:osuma2_idx+1], color="green", linewidth=1, label=lbl)
 
+    axis.set_xlabel("Horizontal distance (m)")
+    axis.set_ylabel("Height (m)")
+    axis.set_title("Kicker flight path simulation")
+    axis.grid(True, alpha=0.3)
     axis.legend(loc='upper right')
     canvas = FigureCanvas(fig)
     output = BytesIO()

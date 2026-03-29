@@ -4,15 +4,21 @@ h1, h2 { font-family: 'Georgia', serif; margin: 0; }
 h1 { border-bottom: 2px solid #eee; }
 h2 { font-size: 1.2em; }
 
-.page { margin: 2em auto; width: 45em; border: 5px solid #ccc;
-                  padding: 0.8em; background: white; }
-.entries { list-style: none; margin: 0; padding: 0; }
-.entries li { margin: 0.8em 1.2em; }
-.entries li h2 { margin-left: -1em; }
-.add-entry { font-size: 0.9em; border-bottom: 1px solid #ccc; }
-.add-entry dl { font-weight: bold; }
-.metanav { text-align: right; font-size: 0.8em; padding: 0.3em;
-                  margin-bottom: 1em; background: #fafafa; }
-.flash { background: #CEE5F5; padding: 0.5em;
-                  border: 1px solid #AACBE2; }
-.error { background: #F0D6D6; padding: 0.5em; }
+.page { margin: 2em auto; width: 90%; max-width: 60em; border: 5px solid #ccc;
+                  padding: 0.8em; background: white; box-sizing: border-box; }
+
+fieldset { border: 1px solid #ccc; border-radius: 4px; margin: 1em 0; padding: 0.5em 1em; }
+legend { color: #377BA8; font-weight: bold; padding: 0 0.3em; }
+
+.field { margin: 0.4em 0; display: flex; align-items: center; gap: 0.5em; flex-wrap: wrap; }
+.field label { min-width: 18em; }
+.field input { width: 6em; padding: 0.2em 0.3em; border: 1px solid #ccc; border-radius: 3px; }
+
+.btn { background: #377BA8; color: white; border: none; padding: 0.5em 1.5em;
+       font-size: 1em; cursor: pointer; border-radius: 3px; margin-top: 0.5em; }
+.btn:hover { background: #285f82; }
+
+.img { margin: 1em 0; }
+
+.flash { background: #CEE5F5; padding: 0.5em; border: 1px solid #AACBE2; }
+.error { color: #c0392b; font-size: 0.9em; }
