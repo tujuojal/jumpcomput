@@ -194,6 +194,9 @@ print("\n=== Step 5: Upload WSGI configuration ===")
 # PythonAnywhere places the WSGI file at a fixed path
 wsgi_path = f"/var/www/{USERNAME}_pythonanywhere_com_wsgi.py"
 
+# Generate a SECRET_KEY and embed it directly in the WSGI file
+secret_key = secrets.token_hex(32)
+
 wsgi_content = f"""# Auto-generated WSGI config for jumpcomput on PythonAnywhere
 import sys
 import os
@@ -201,6 +204,8 @@ import os
 path = '{PROJECT_DIR}'
 if path not in sys.path:
     sys.path.insert(0, path)
+
+os.environ.setdefault('SECRET_KEY', '{secret_key}')
 
 from app import app as application  # noqa
 """
@@ -212,24 +217,9 @@ print(f"  WSGI file uploaded to {wsgi_path} (status {r.status_code})")
 r = api("patch", f"/webapps/{DOMAIN}/", data={"wsgi_file_path": wsgi_path})
 print(f"  WSGI path set on web app (status {r.status_code})")
 
-# ── Step 6: Set SECRET_KEY environment variable ────────────────────────────────
+# ── Step 6: Reload the web app ────────────────────────────────────────────────
 
-print("\n=== Step 6: Environment variables ===")
-
-# Check if SECRET_KEY already set
-env_resp = api("get", f"/webapps/{DOMAIN}/env_variables/")
-existing_env = {e["name"]: e for e in (env_resp.json() if env_resp.status_code == 200 else [])} if isinstance(env_resp.json(), list) else {}
-
-if "SECRET_KEY" not in existing_env:
-    secret_key = secrets.token_hex(32)
-    r = api("post", f"/webapps/{DOMAIN}/env_variables/", json_body={"name": "SECRET_KEY", "value": secret_key})
-    print(f"  SECRET_KEY generated and set (status {r.status_code})")
-else:
-    print("  SECRET_KEY already set, skipping.")
-
-# ── Step 7: Reload the web app ────────────────────────────────────────────────
-
-print("\n=== Step 7: Reload web app ===")
+print("\n=== Step 6: Reload web app ===")
 r = api("post", f"/webapps/{DOMAIN}/reload/")
 print(f"  Reload status: {r.status_code} {r.text}")
 
