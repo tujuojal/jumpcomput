@@ -107,9 +107,12 @@ else:
 
 print("\n=== Step 2: Virtualenv + dependencies ===")
 if not os.path.isdir(VENV_DIR):
-    run(f"python{PYTHON_VER} -m venv {VENV_DIR}")
+    # --system-site-packages lets the venv reuse PythonAnywhere's pre-installed
+    # numpy, scipy and matplotlib, avoiding disk-quota issues on the free tier.
+    run(f"python{PYTHON_VER} -m venv --system-site-packages {VENV_DIR}")
 run(f"{VENV_DIR}/bin/pip install --upgrade pip -q")
-run(f"{VENV_DIR}/bin/pip install -r {PROJECT_DIR}/requirements.txt -q")
+# Only install the packages not already available system-wide (flask, wtforms).
+run(f"{VENV_DIR}/bin/pip install flask wtforms -q")
 
 # ── Step 3: Create web app (or confirm it exists) ──────────────────────────────
 
