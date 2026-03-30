@@ -31,9 +31,20 @@ REPO_URL   = "https://github.com/tujuojal/jumpcomput.git"
 PROJECT_DIR = f"/home/{USERNAME}/jumpcomput"
 VENV_DIR    = f"/home/{USERNAME}/.virtualenvs/jumpcomput"
 DOMAIN      = f"{USERNAME}.pythonanywhere.com"
-PYTHON_VER  = "3.10"
+PYTHON_VER  = None  # auto-detected below
 
 API_BASE = f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}"
+
+# Auto-detect the best available Python 3 version on this system
+def _detect_python_ver():
+    import shutil
+    for ver in ("3.13", "3.12", "3.11", "3.10", "3.9"):
+        if shutil.which(f"python{ver}"):
+            return ver
+    sys.exit("Could not find python3.x (3.9–3.13) on PATH")
+
+PYTHON_VER = _detect_python_ver()
+print(f"Detected Python version: {PYTHON_VER}")
 
 # ── Helpers ─────────────────────────────────────────────────────────────────────
 
