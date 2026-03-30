@@ -128,20 +128,34 @@ existing_domains = [w["domain_name"] for w in (existing if isinstance(existing, 
 
 if DOMAIN not in existing_domains:
     print(f"  Creating web app for {DOMAIN} ...")
-    # Try versions from newest to oldest until PythonAnywhere accepts one
+
+    # Query the account's system image to find available Python versions
+    sys_img = api("get", "/system_image/")
+    print(f"  System image info: {sys_img.text}")
+
+    # Build candidate list: dotted format AND plain integer format
+    candidates = []
+    for ver in ("3.13", "3.12", "3.11", "3.10", "3.9"):
+        candidates.append(ver)
+        candidates.append(ver.replace(".", ""))   # "313", "312", …
+
     created = False
-    for try_ver in ("3.13", "3.12", "3.11", "3.10", "3.9"):
+    for try_ver in candidates:
         r = api("post", "/webapps/", data={"domain_name": DOMAIN, "python_version": try_ver})
         if r.status_code in (200, 201):
             PYTHON_VER = try_ver
             created = True
-            print(f"  Web app created with Python {PYTHON_VER}")
+            print(f"  Web app created with Python version string '{PYTHON_VER}'")
             break
         body = json.loads(r.text) if r.text else {}
         if body.get("error_type") != "invalid_python_version":
             sys.exit(f"Failed to create web app: {r.text}")
     if not created:
-        sys.exit("No supported Python version found for this PythonAnywhere account.")
+        sys.exit(
+            "Could not create web app — no supported Python version found.\n"
+            "Please create the web app manually in the PythonAnywhere Web tab,\n"
+            "then re-run this script (it will skip creation and configure the rest)."
+        )
 else:
     print(f"  Web app {DOMAIN} already exists, updating configuration ...")
     # Read the Python version the existing web app was created with
