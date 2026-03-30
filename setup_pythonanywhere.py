@@ -20,7 +20,9 @@ import os
 import sys
 import subprocess
 import secrets
-import requests
+import json
+import urllib.request
+import urllib.parse
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 USERNAME   = "tujuojal"
@@ -32,7 +34,6 @@ DOMAIN      = f"{USERNAME}.pythonanywhere.com"
 PYTHON_VER  = "3.10"
 
 API_BASE = f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}"
-HEADERS  = {"Authorization": f"Token {API_TOKEN}"}
 
 # ── Helpers ─────────────────────────────────────────────────────────────────────
 
@@ -47,12 +48,52 @@ def run(cmd, check=True):
         sys.exit(f"Command failed with exit code {result.returncode}")
     return result
 
-def api(method, path, **kwargs):
+class _Response:
+    def __init__(self, status_code, text):
+        self.status_code = status_code
+        self.text = text
+    def json(self):
+        return json.loads(self.text)
+
+def api(method, path, data=None, json_body=None, files=None):
+    """Minimal HTTP helper using only stdlib urllib."""
     url = f"{API_BASE}{path}"
-    resp = getattr(requests, method)(url, headers=HEADERS, **kwargs)
-    if resp.status_code not in (200, 201):
-        print(f"  API {method.upper()} {path} → {resp.status_code}: {resp.text}")
-    return resp
+    headers = {"Authorization": f"Token {API_TOKEN}"}
+
+    body = None
+    if json_body is not None:
+        body = json.dumps(json_body).encode()
+        headers["Content-Type"] = "application/json"
+    elif files is not None:
+        # Multipart form-data for file upload
+        boundary = "----FormBoundary" + secrets.token_hex(8)
+        headers["Content-Type"] = f"multipart/form-data; boundary={boundary}"
+        parts = []
+        for field_name, file_tuple in files.items():
+            filename, content = file_tuple
+            part = (
+                f"--{boundary}\r\n"
+                f'Content-Disposition: form-data; name="{field_name}"; filename="{filename}"\r\n'
+                f"Content-Type: text/plain\r\n\r\n"
+            ).encode() + (content.encode() if isinstance(content, str) else content) + b"\r\n"
+            parts.append(part)
+        body = b"".join(parts) + f"--{boundary}--\r\n".encode()
+    elif data is not None:
+        body = urllib.parse.urlencode(data).encode()
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    req = urllib.request.Request(url, data=body, headers=headers, method=method.upper())
+    try:
+        with urllib.request.urlopen(req) as resp:
+            text = resp.read().decode()
+            status = resp.status
+    except urllib.error.HTTPError as e:
+        text = e.read().decode()
+        status = e.code
+
+    if status not in (200, 201):
+        print(f"  API {method.upper()} {path} → {status}: {text}")
+    return _Response(status, text)
 
 # ── Step 1: Clone or update the repository ──────────────────────────────────────
 
@@ -129,7 +170,7 @@ existing_env = {e["name"]: e for e in (env_resp.json() if env_resp.status_code =
 
 if "SECRET_KEY" not in existing_env:
     secret_key = secrets.token_hex(32)
-    r = api("post", f"/webapps/{DOMAIN}/env_variables/", json={"name": "SECRET_KEY", "value": secret_key})
+    r = api("post", f"/webapps/{DOMAIN}/env_variables/", json_body={"name": "SECRET_KEY", "value": secret_key})
     print(f"  SECRET_KEY generated and set (status {r.status_code})")
 else:
     print("  SECRET_KEY already set, skipping.")
