@@ -117,13 +117,8 @@ else:
 # ── Step 2: Create virtualenv and install dependencies ──────────────────────────
 
 print("\n=== Step 2: Virtualenv + dependencies ===")
-if not os.path.isdir(VENV_DIR):
-    # --system-site-packages lets the venv reuse PythonAnywhere's pre-installed
-    # numpy, scipy and matplotlib, avoiding disk-quota issues on the free tier.
-    run(f"python{PYTHON_VER} -m venv --system-site-packages {VENV_DIR}")
-run(f"{VENV_DIR}/bin/pip install --upgrade pip -q")
-# Only install the packages not already available system-wide (flask, wtforms).
-run(f"{VENV_DIR}/bin/pip install flask wtforms -q")
+# PYTHON_VER is set after web app creation; venv is created/recreated in Step 3 if needed.
+# We defer actual venv creation until after we know the accepted Python version.
 
 # ── Step 3: Create web app (or confirm it exists) ──────────────────────────────
 
@@ -133,15 +128,44 @@ existing_domains = [w["domain_name"] for w in (existing if isinstance(existing, 
 
 if DOMAIN not in existing_domains:
     print(f"  Creating web app for {DOMAIN} ...")
-    r = api("post", "/webapps/", data={
-        "domain_name": DOMAIN,
-        "python_version": PYTHON_VER,
-    })
-    if r.status_code not in (200, 201):
-        sys.exit(f"Failed to create web app: {r.text}")
-    print(f"  Web app created: {DOMAIN}")
+    # Try versions from newest to oldest until PythonAnywhere accepts one
+    created = False
+    for try_ver in ("3.13", "3.12", "3.11", "3.10", "3.9"):
+        r = api("post", "/webapps/", data={"domain_name": DOMAIN, "python_version": try_ver})
+        if r.status_code in (200, 201):
+            PYTHON_VER = try_ver
+            created = True
+            print(f"  Web app created with Python {PYTHON_VER}")
+            break
+        body = json.loads(r.text) if r.text else {}
+        if body.get("error_type") != "invalid_python_version":
+            sys.exit(f"Failed to create web app: {r.text}")
+    if not created:
+        sys.exit("No supported Python version found for this PythonAnywhere account.")
 else:
     print(f"  Web app {DOMAIN} already exists, updating configuration ...")
+    # Read the Python version the existing web app was created with
+    webapp_info = api("get", f"/webapps/{DOMAIN}/").json()
+    PYTHON_VER = webapp_info.get("python_version", PYTHON_VER)
+    print(f"  Using existing web app Python version: {PYTHON_VER}")
+
+# ── Create virtualenv now that we know the Python version ──────────────────────
+
+print("\n=== Step 2b: Create virtualenv ===")
+if os.path.isdir(VENV_DIR):
+    # Check if it uses the right Python version
+    venv_python = os.path.realpath(f"{VENV_DIR}/bin/python")
+    if f"python{PYTHON_VER}" not in venv_python:
+        print(f"  Removing old venv (wrong Python version)")
+        run(f"rm -rf {VENV_DIR}", check=False)
+
+if not os.path.isdir(VENV_DIR):
+    # --system-site-packages reuses PythonAnywhere's pre-installed numpy/scipy/matplotlib
+    run(f"python{PYTHON_VER} -m venv --system-site-packages {VENV_DIR}")
+
+run(f"{VENV_DIR}/bin/pip install --upgrade pip -q")
+# Only install packages not already available system-wide (flask, wtforms)
+run(f"{VENV_DIR}/bin/pip install flask wtforms -q")
 
 # ── Step 4: Set virtualenv path ────────────────────────────────────────────────
 
