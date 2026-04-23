@@ -5,7 +5,6 @@ matplotlib.use("agg")
 from numpy import pi, sin, tan, sqrt
 import pylab
 import numpy
-import scipy.interpolate as interpolate
 
 class Land:
     def __init__(self,takeheight=1,length=10,landangle=30,landheight=10,takesx=0,takesy=0):
@@ -38,18 +37,17 @@ class Land:
                 return val
         return len(lento.sx)
 
-    ##This one is more advanced geometry, nothing huge but a round knuckle
     def alasgeom(self,x):
-        xx2=numpy.array(self.xx_info,dtype=float)
-        yy2=numpy.array(self.yy_info,dtype=float)
-        p2=interpolate.CubicSpline(xx2,yy2)
-        centerx=self.xx_info[1]-self.r*tan(self.angle/2.) #this is x coord of the center of circle of the knuckle
+        centerx=self.xx_info[1]-self.r*tan(self.angle/2.)
         if (x < centerx):
             return self.yy_info[1]
         elif (x < centerx + self.r*sin(self.angle)):
             return sqrt(self.r**2 - (x - centerx)**2) + (self.yy_info[1]-self.r)
         else:
-            return p2(x)
+            # straight slope tangent to the arc at the knuckle exit point
+            x_end = centerx + self.r*sin(self.angle)
+            y_end = self.r*numpy.cos(self.angle) + self.yy_info[1] - self.r
+            return y_end - (x - x_end)*numpy.tan(self.angle)
 
 
     def reset(self,takeheight=1,length=10,landangle=30,landheight=10,takesx=0,takesy=0):
